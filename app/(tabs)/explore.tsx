@@ -20,7 +20,7 @@ export default function ExploreScreen() {
   const [filterVisible, setFilterVisible] = useState(false);
 
   // Mock data - in production, this would come from React Query
-  const repositories = [];
+  const repositories: any[] = [];
   const isLoading = false;
   const isError = false;
 

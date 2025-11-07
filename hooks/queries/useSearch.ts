@@ -116,7 +116,7 @@ export function useInfiniteSearchRepositories(
   params: Omit<SearchParams, 'page'> = {},
   options?: Omit<
     UseInfiniteQueryOptions<PaginatedResponse<Repository>, ApiError>,
-    'queryKey' | 'queryFn' | 'getNextPageParam' | 'initialPageParam'
+    'queryKey' | 'queryFn' | 'getNextPageParam' | 'initialPageParam' | 'select'
   >
 ) {
   const debouncedQuery = useDebounce(query, TIMING.debounce);
@@ -156,7 +156,7 @@ export function useInfiniteSearchTopics(
   params: Omit<SearchParams, 'page'> = {},
   options?: Omit<
     UseInfiniteQueryOptions<PaginatedResponse<Topic>, ApiError>,
-    'queryKey' | 'queryFn' | 'getNextPageParam' | 'initialPageParam'
+    'queryKey' | 'queryFn' | 'getNextPageParam' | 'initialPageParam' | 'select'
   >
 ) {
   const debouncedQuery = useDebounce(query, TIMING.debounce);

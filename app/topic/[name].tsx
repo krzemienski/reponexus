@@ -24,7 +24,7 @@ export default function TopicDetailScreen() {
     relatedTopics: ['javascript', 'typescript', 'frontend', 'web'],
   };
 
-  const repositories = [];
+  const repositories: any[] = [];
   const isLoading = false;
   const isError = false;
 

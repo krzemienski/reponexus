@@ -90,7 +90,7 @@ export function useInfiniteStarredRepositories(
   params: { perPage?: number; sort?: string } = {},
   options?: Omit<
     UseInfiniteQueryOptions<PaginatedResponse<Repository>, ApiError>,
-    'queryKey' | 'queryFn' | 'getNextPageParam' | 'initialPageParam'
+    'queryKey' | 'queryFn' | 'getNextPageParam' | 'initialPageParam' | 'select'
   >
 ) {
   const filterString = JSON.stringify(params);

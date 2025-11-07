@@ -89,7 +89,7 @@ export function useInfiniteRepositories(
   params: Omit<RepositoryListParams, 'page'> = {},
   options?: Omit<
     UseInfiniteQueryOptions<PaginatedResponse<Repository>, ApiError>,
-    'queryKey' | 'queryFn' | 'getNextPageParam' | 'initialPageParam'
+    'queryKey' | 'queryFn' | 'getNextPageParam' | 'initialPageParam' | 'select'
   >
 ) {
   const filterString = JSON.stringify(params);

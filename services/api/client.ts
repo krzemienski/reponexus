@@ -97,11 +97,12 @@ apiClient.interceptors.response.use(
 
       if (isAuthEndpoint) {
         // Transform error and reject
+        const errorData = error.response?.data as any;
         const apiError: ApiError = {
-          message: error.response?.data?.message || 'Authentication failed',
-          code: error.response?.data?.code || 'AUTH_ERROR',
+          message: errorData?.message || 'Authentication failed',
+          code: errorData?.code || 'AUTH_ERROR',
           status: 401,
-          details: error.response?.data?.details,
+          details: errorData?.details,
         };
 
         return Promise.reject(apiError);
@@ -221,14 +222,15 @@ apiClient.interceptors.response.use(
 
     if (error.response) {
       // Server responded with error status
+      const errorData = error.response.data as any;
       apiError = {
         message:
-          error.response.data?.message ||
+          errorData?.message ||
           error.message ||
           'An error occurred',
-        code: error.response.data?.code || 'API_ERROR',
+        code: errorData?.code || 'API_ERROR',
         status: error.response.status,
-        details: error.response.data?.details,
+        details: errorData?.details,
       };
     } else if (error.request) {
       // Request was made but no response received

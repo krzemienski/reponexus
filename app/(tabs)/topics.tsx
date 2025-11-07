@@ -15,7 +15,7 @@ export default function TopicsScreen() {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Mock data - in production, this would come from React Query
-  const topics = [];
+  const topics: any[] = [];
   const isLoading = false;
   const isError = false;
 

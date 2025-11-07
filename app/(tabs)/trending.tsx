@@ -10,7 +10,7 @@ export default function TrendingScreen() {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Mock data - in production, this would come from React Query
-  const trendingItems = [];
+  const trendingItems: any[] = [];
   const isLoading = false;
   const isError = false;
 

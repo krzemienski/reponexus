@@ -62,7 +62,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
       className="bg-dark-200"
       style={[
         {
-          width,
+          width: width as any,
           height,
           borderRadius,
         },
@@ -107,7 +107,7 @@ export const Shimmer: React.FC<ShimmerProps> = ({
       className="bg-dark-200 overflow-hidden"
       style={[
         {
-          width,
+          width: width as any,
           height,
           borderRadius,
         },

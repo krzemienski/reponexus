@@ -119,7 +119,7 @@ export function useInfiniteTopics(
   params: Omit<TopicListParams, 'page'> = {},
   options?: Omit<
     UseInfiniteQueryOptions<PaginatedResponse<Topic>, ApiError>,
-    'queryKey' | 'queryFn' | 'getNextPageParam' | 'initialPageParam'
+    'queryKey' | 'queryFn' | 'getNextPageParam' | 'initialPageParam' | 'select'
   >
 ) {
   const filterString = JSON.stringify(params);
@@ -154,7 +154,7 @@ export function useInfiniteTopicRepositories(
   params: { perPage?: number; sort?: string } = {},
   options?: Omit<
     UseInfiniteQueryOptions<PaginatedResponse<Repository>, ApiError>,
-    'queryKey' | 'queryFn' | 'getNextPageParam' | 'initialPageParam'
+    'queryKey' | 'queryFn' | 'getNextPageParam' | 'initialPageParam' | 'select'
   >
 ) {
   return useInfiniteQuery<PaginatedResponse<Repository>, ApiError>({

@@ -47,12 +47,15 @@ class AuthService {
 
     const redirectUri = makeAuthRedirectUri();
 
+    // Generate random state for CSRF protection
+    const randomState = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+
     this.request = new AuthSession.AuthRequest({
       clientId: GITHUB_CLIENT_ID,
       scopes: OAUTH_SCOPES,
       redirectUri,
       usePKCE: false, // GitHub doesn't support PKCE
-      state: AuthSession.generateRandom(32), // CSRF protection
+      state: randomState, // CSRF protection
     });
 
     return this.request;
@@ -66,9 +69,8 @@ class AuthService {
     try {
       const request = await this.initializeRequest();
       const result = await request.promptAsync(discovery, {
-        useProxy: false,
         showInRecents: true,
-      });
+      } as any);
 
       return result;
     } catch (error) {

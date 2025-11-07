@@ -17,7 +17,9 @@ export const queryKeys = {
     detail: (id: string) => [...queryKeys.repositories.details(), id] as const,
     readme: (id: string) => [...queryKeys.repositories.detail(id), 'readme'] as const,
     trending: (period: string, language?: string) =>
-      ['repositories', 'trending', period, language].filter(Boolean) as const,
+      language
+        ? (['repositories', 'trending', period, language] as const)
+        : (['repositories', 'trending', period] as const),
   },
 
   /**

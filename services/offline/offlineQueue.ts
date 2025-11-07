@@ -53,7 +53,7 @@ class OfflineQueueManager {
    */
   private saveQueue() {
     try {
-      MMKVStorage.setString(QUEUE_KEY, JSON.stringify(this.queue));
+      MMKVStorage.set(QUEUE_KEY, JSON.stringify(this.queue));
     } catch (error) {
       console.error('Failed to save offline queue:', error);
     }

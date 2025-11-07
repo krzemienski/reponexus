@@ -17,7 +17,7 @@ export function createMMKVPersister(): Persister {
   return {
     persistClient: async (client: PersistedClient) => {
       try {
-        MMKVStorage.setString(PERSIST_KEY, JSON.stringify(client));
+        MMKVStorage.set(PERSIST_KEY, JSON.stringify(client));
         if (__DEV__) {
           console.log('[Persister] Cache persisted successfully');
         }

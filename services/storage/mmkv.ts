@@ -101,4 +101,7 @@ export const StorageService = {
   },
 };
 
+// Export storage instance for advanced usage
+export const MMKVStorage = storage;
+
 export default StorageService;

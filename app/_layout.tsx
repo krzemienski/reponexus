@@ -4,6 +4,9 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { PaperProvider } from 'react-native-paper';
+import { useThemeStore } from '@/stores/themeStore';
+import { paperDarkTheme, paperLightTheme } from '@/utils/paperTheme';
 import { persistenceConfig } from '@/services/offline/persistance';
 import { syncService } from '@/services/offline/syncService';
 import { cacheManager } from '@/services/cache/cacheManager';
@@ -79,6 +82,9 @@ queryClient.getMutationCache().subscribe((event) => {
 });
 
 export default function RootLayout() {
+  const isDark = useThemeStore((state) => state.isDark);
+  const paperTheme = isDark ? paperDarkTheme : paperLightTheme;
+
   useEffect(() => {
     // Initialize services
     const initializeServices = async () => {
@@ -118,27 +124,29 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <PersistQueryClientProvider
-          client={queryClient}
-          persistOptions={persistenceConfig}
-          onSuccess={() => {
-            if (__DEV__) {
-              console.log('[App] Query cache hydrated from storage');
-            }
-          }}
-        >
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              contentStyle: { backgroundColor: '#000000' },
+        <PaperProvider theme={paperTheme}>
+          <PersistQueryClientProvider
+            client={queryClient}
+            persistOptions={persistenceConfig}
+            onSuccess={() => {
+              if (__DEV__) {
+                console.log('[App] Query cache hydrated from storage');
+              }
             }}
           >
-            <Stack.Screen name="(auth)" />
-            <Stack.Screen name="(tabs)" />
-            <Stack.Screen name="repository/[id]" />
-            <Stack.Screen name="topic/[name]" />
-          </Stack>
-        </PersistQueryClientProvider>
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                contentStyle: { backgroundColor: isDark ? '#09090b' : '#ffffff' },
+              }}
+            >
+              <Stack.Screen name="(auth)" />
+              <Stack.Screen name="(tabs)" />
+              <Stack.Screen name="repository/[id]" />
+              <Stack.Screen name="topic/[name]" />
+            </Stack>
+          </PersistQueryClientProvider>
+        </PaperProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

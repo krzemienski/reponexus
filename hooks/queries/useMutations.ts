@@ -39,6 +39,16 @@ interface UpdateProfileParams {
   twitterUsername?: string;
 }
 
+// Context types for optimistic updates
+interface TopicMutationContext {
+  previousTopic?: Topic;
+  previousUserTopics?: Topic[];
+}
+
+interface RepositoryMutationContext {
+  previousRepository?: Repository;
+}
+
 /**
  * Hook to follow a topic
  *
@@ -50,13 +60,13 @@ interface UpdateProfileParams {
  */
 export function useFollowTopic(
   options?: Omit<
-    UseMutationOptions<void, ApiError, FollowTopicParams>,
+    UseMutationOptions<void, ApiError, FollowTopicParams, TopicMutationContext>,
     'mutationFn' | 'onMutate' | 'onError' | 'onSuccess'
   >
 ) {
   const queryClient = useQueryClient();
 
-  return useMutation<void, ApiError, FollowTopicParams>({
+  return useMutation<void, ApiError, FollowTopicParams, TopicMutationContext>({
     mutationFn: async ({ topicName }) => {
       const response = await apiClient.post(API_ENDPOINTS.FOLLOW_TOPIC(topicName));
       return response.data;
@@ -125,13 +135,13 @@ export function useFollowTopic(
  */
 export function useUnfollowTopic(
   options?: Omit<
-    UseMutationOptions<void, ApiError, UnfollowTopicParams>,
+    UseMutationOptions<void, ApiError, UnfollowTopicParams, TopicMutationContext>,
     'mutationFn' | 'onMutate' | 'onError' | 'onSuccess'
   >
 ) {
   const queryClient = useQueryClient();
 
-  return useMutation<void, ApiError, UnfollowTopicParams>({
+  return useMutation<void, ApiError, UnfollowTopicParams, TopicMutationContext>({
     mutationFn: async ({ topicName }) => {
       const response = await apiClient.delete(API_ENDPOINTS.FOLLOW_TOPIC(topicName));
       return response.data;
@@ -183,13 +193,13 @@ export function useUnfollowTopic(
  */
 export function useStarRepository(
   options?: Omit<
-    UseMutationOptions<void, ApiError, StarRepositoryParams>,
+    UseMutationOptions<void, ApiError, StarRepositoryParams, RepositoryMutationContext>,
     'mutationFn' | 'onMutate' | 'onError' | 'onSuccess'
   >
 ) {
   const queryClient = useQueryClient();
 
-  return useMutation<void, ApiError, StarRepositoryParams>({
+  return useMutation<void, ApiError, StarRepositoryParams, RepositoryMutationContext>({
     mutationFn: async ({ repositoryId }) => {
       const response = await apiClient.put(API_ENDPOINTS.STAR(repositoryId));
       return response.data;
@@ -246,13 +256,13 @@ export function useStarRepository(
  */
 export function useUnstarRepository(
   options?: Omit<
-    UseMutationOptions<void, ApiError, UnstarRepositoryParams>,
+    UseMutationOptions<void, ApiError, UnstarRepositoryParams, RepositoryMutationContext>,
     'mutationFn' | 'onMutate' | 'onError' | 'onSuccess'
   >
 ) {
   const queryClient = useQueryClient();
 
-  return useMutation<void, ApiError, UnstarRepositoryParams>({
+  return useMutation<void, ApiError, UnstarRepositoryParams, RepositoryMutationContext>({
     mutationFn: async ({ repositoryId }) => {
       const response = await apiClient.delete(API_ENDPOINTS.STAR(repositoryId));
       return response.data;

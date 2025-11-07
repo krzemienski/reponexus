@@ -1,0 +1,103 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: reponexus-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://reponexus:reponexus@postgres:5432/reponexus
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/2
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - ./app:/app/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - reponexus-network
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: reponexus-postgres
+    environment:
+      - POSTGRES_USER=reponexus
+      - POSTGRES_PASSWORD=reponexus
+      - POSTGRES_DB=reponexus
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U reponexus"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - reponexus-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: reponexus-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - reponexus-network
+
+  celery_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: reponexus-celery-worker
+    command: celery -A app.workers.celery worker --loglevel=info
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://reponexus:reponexus@postgres:5432/reponexus
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/2
+    depends_on:
+      - backend
+      - redis
+      - postgres
+    volumes:
+      - ./app:/app/app
+    networks:
+      - reponexus-network
+
+  celery_beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: reponexus-celery-beat
+    command: celery -A app.workers.celery beat --loglevel=info
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://reponexus:reponexus@postgres:5432/reponexus
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/2
+    depends_on:
+      - backend
+      - redis
+      - postgres
+    volumes:
+      - ./app:/app/app
+    networks:
+      - reponexus-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  reponexus-network:
+    driver: bridge

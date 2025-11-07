@@ -1,41 +1,61 @@
-import { View, Text, ScrollView } from 'react-native';
+import React, { useState } from 'react';
+import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Text } from '@/components/ui/Text';
+import { TrendingList } from '@/components/features/trending/TrendingList';
+import type { TrendingPeriod } from '@/types/models';
 
 export default function TrendingScreen() {
+  const [selectedPeriod, setSelectedPeriod] = useState<TrendingPeriod>('daily');
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Mock data - in production, this would come from React Query
+  const trendingItems = [];
+  const isLoading = false;
+  const isError = false;
+
+  const handlePeriodChange = (period: TrendingPeriod) => {
+    setSelectedPeriod(period);
+    // Fetch new data for the selected period
+    console.log('Period changed to:', period);
+  };
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    // Simulate refresh
+    setTimeout(() => {
+      setIsRefreshing(false);
+    }, 1000);
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-dark-50">
-      <View className="px-4 py-4">
-        <Text className="text-3xl font-bold text-white mb-4">Trending</Text>
-
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-4">
-          <View className="flex-row gap-2">
-            {['Today', 'This Week', 'This Month'].map((period, index) => (
-              <View
-                key={period}
-                className={`px-6 py-2 rounded-full ${
-                  index === 0 ? 'bg-primary-600' : 'bg-dark-100'
-                }`}
-              >
-                <Text
-                  className={`font-medium ${
-                    index === 0 ? 'text-white' : 'text-dark-500'
-                  }`}
-                >
-                  {period}
-                </Text>
-              </View>
-            ))}
+      <View className="flex-1">
+        {/* Header */}
+        <View className="px-4 pt-4 pb-2">
+          <View className="flex-row items-center justify-between">
+            <Text variant="heading" weight="bold">
+              Trending
+            </Text>
+            <View className="flex-row items-center">
+              <View className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse" />
+              <Text variant="caption" color="success">
+                Live
+              </Text>
+            </View>
           </View>
-        </ScrollView>
-
-        <View className="bg-dark-100 rounded-lg p-4">
-          <Text className="text-white text-lg font-semibold mb-2">
-            Trending Repositories
-          </Text>
-          <Text className="text-dark-500">
-            Loading trending data...
-          </Text>
         </View>
+
+        {/* Trending List with Period Selector */}
+        <TrendingList
+          items={trendingItems}
+          isLoading={isLoading}
+          isError={isError}
+          isRefreshing={isRefreshing}
+          onRefresh={handleRefresh}
+          onPeriodChange={handlePeriodChange}
+          selectedPeriod={selectedPeriod}
+        />
       </View>
     </SafeAreaView>
   );

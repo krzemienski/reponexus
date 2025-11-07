@@ -1,5 +1,6 @@
 from sqlalchemy import Column, String, Integer, DateTime, Boolean, JSON
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
 from datetime import datetime
 import uuid
 
@@ -54,6 +55,9 @@ class Repository(Base):
     # Analytics
     trending_score = Column(Integer, default=0)
     quality_score = Column(Integer, default=0)
+
+    # Relationships
+    starred_by = relationship("StarredRepository", back_populates="repository", cascade="all, delete-orphan")
 
     def __repr__(self) -> str:
         return f"<Repository(id={self.id}, name_with_owner={self.name_with_owner})>"

@@ -8,7 +8,7 @@ import asyncio
 # Import Base and models
 from app.core.db import Base
 from app.core.config import settings
-from app.models import user, repository, topic  # noqa
+from app.models import user, repository, topic, starred_repository, analytics, audit_log  # noqa
 
 # this is the Alembic Config object
 config = context.config

@@ -1,5 +1,6 @@
 from sqlalchemy import Column, String, Integer, DateTime, Boolean
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
 from datetime import datetime
 import uuid
 
@@ -43,6 +44,11 @@ class User(Base):
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
     last_login_at = Column(DateTime, nullable=True)
+
+    # Relationships
+    starred_repositories = relationship("StarredRepository", back_populates="user", cascade="all, delete-orphan")
+    followed_topics = relationship("UserTopic", back_populates="user", cascade="all, delete-orphan")
+    analytics_events = relationship("AnalyticsEvent", back_populates="user", cascade="all, delete-orphan")
 
     def __repr__(self) -> str:
         return f"<User(id={self.id}, login={self.login})>"

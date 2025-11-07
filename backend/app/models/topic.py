@@ -1,5 +1,6 @@
 from sqlalchemy import Column, String, Integer, DateTime, Boolean, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
 from datetime import datetime
 import uuid
 
@@ -26,6 +27,9 @@ class Topic(Base):
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
+    # Relationships
+    followers = relationship("UserTopic", back_populates="topic", cascade="all, delete-orphan")
+
     def __repr__(self) -> str:
         return f"<Topic(id={self.id}, name={self.name})>"
 
@@ -51,6 +55,10 @@ class UserTopic(Base):
     # Metadata
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    # Relationships
+    user = relationship("User", back_populates="followed_topics")
+    topic = relationship("Topic", back_populates="followers")
 
     def __repr__(self) -> str:
         return f"<UserTopic(user_id={self.user_id}, topic_id={self.topic_id})>"

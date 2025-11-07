@@ -1,0 +1,49 @@
+appId: com.reponexus.ios
+---
+# Trending Screen Flow Test
+- launchApp
+- tapOn: "Trending"
+- assertVisible: "Today"
+
+# Verify trending list loaded
+- assertVisible:
+    text: "#1"
+    timeout: 5000
+
+# Switch to weekly
+- tapOn: "This Week"
+- waitForAnimationToEnd
+- assertVisible:
+    text: "#1"
+    timeout: 5000
+
+# Switch to monthly
+- tapOn: "This Month"
+- waitForAnimationToEnd
+- assertVisible:
+    text: "#1"
+    timeout: 5000
+
+# Filter by language
+- tapOn: "All Languages"
+- tapOn: "Python"
+- waitForAnimationToEnd
+- assertVisible: "Python"
+
+# Tap on trending repository
+- tapOn:
+    id: "trending-card-0"
+- assertVisible: "Star"
+- assertVisible: "Built by"
+
+# Navigate back
+- back
+- assertVisible: "Trending"
+
+# Scroll through trending list
+- scroll:
+    speed: fast
+    direction: down
+
+# Verify no crashes during scroll
+- assertVisible: "Trending"

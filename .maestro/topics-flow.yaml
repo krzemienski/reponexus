@@ -1,0 +1,44 @@
+appId: com.reponexus.ios
+---
+# Topics Screen Flow Test
+- launchApp
+- tapOn: "Topics"
+- assertVisible: "Trending Topics"
+
+# Search for a topic
+- tapOn: "Search topics"
+- inputText: "react"
+- pressKey: Enter
+- waitForAnimationToEnd
+- assertVisible: "React"
+
+# Follow a topic
+- tapOn: "react"
+- tapOn: "Follow"
+- waitForAnimationToEnd
+- assertVisible: "Following"
+
+# View topic repositories
+- assertVisible: "Repositories"
+- scroll:
+    direction: down
+- assertVisible:
+    text: "Repository"
+    timeout: 5000
+
+# Unfollow topic
+- tapOn: "Following"
+- assertVisible: "Follow"
+
+# Navigate back
+- back
+- assertVisible: "Topics"
+
+# View followed topics
+- tapOn: "Following"
+- assertVisible: "Followed Topics"
+
+# Test empty state
+- assertVisible:
+    text: "No followed topics"
+    enabled: false

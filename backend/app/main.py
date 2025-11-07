@@ -5,10 +5,11 @@ from contextlib import asynccontextmanager
 
 from app.core.config import settings
 from app.core.db import engine, Base
-from app.api.v1 import auth, repositories, topics, users, search
+from app.api.v1 import auth, repositories, topics, users, search, webhooks, analytics
+from app.middleware.security import SecurityHeadersMiddleware, RequestIDMiddleware
 
 # Import models to ensure they are registered with SQLAlchemy
-from app.models import user, repository, topic  # noqa
+from app.models import user, repository, topic, audit_log, starred_repository, analytics as analytics_models  # noqa
 
 
 @asynccontextmanager
@@ -43,6 +44,12 @@ app = FastAPI(
     openapi_url=f"{settings.API_V1_PREFIX}/openapi.json",
     lifespan=lifespan,
 )
+
+# Add Security Headers Middleware (first for all responses)
+app.add_middleware(SecurityHeadersMiddleware)
+
+# Add Request ID Middleware (for tracking and logging)
+app.add_middleware(RequestIDMiddleware)
 
 # Add CORS middleware
 app.add_middleware(
@@ -86,6 +93,8 @@ app.include_router(
 app.include_router(topics.router, prefix=f"{settings.API_V1_PREFIX}/topics", tags=["topics"])
 app.include_router(users.router, prefix=f"{settings.API_V1_PREFIX}/users", tags=["users"])
 app.include_router(search.router, prefix=f"{settings.API_V1_PREFIX}/search", tags=["search"])
+app.include_router(analytics.router, prefix=f"{settings.API_V1_PREFIX}/analytics", tags=["analytics"])
+app.include_router(webhooks.router, prefix=settings.API_V1_PREFIX, tags=["webhooks"])
 
 if __name__ == "__main__":
     import uvicorn

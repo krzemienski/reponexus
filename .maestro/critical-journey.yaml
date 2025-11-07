@@ -1,0 +1,75 @@
+appId: com.reponexus.ios
+---
+# Critical User Journey - Complete Flow Test
+# This tests the most important user flow end-to-end
+
+# 1. App Launch
+- launchApp
+- assertVisible:
+    text: "Explore"
+    timeout: 3000
+
+# 2. Browse Repositories
+- tapOn: "Explore"
+- assertVisible: "Search repositories"
+- waitForAnimationToEnd
+
+# 3. Search for Repository
+- tapOn: "Search repositories"
+- inputText: "react-native"
+- pressKey: Enter
+- waitForAnimationToEnd
+- assertVisible:
+    text: "react-native"
+    timeout: 5000
+
+# 4. View Repository Details
+- tapOn:
+    text: "react-native"
+    index: 0
+- assertVisible: "Star"
+- assertVisible: "Fork"
+- assertVisible: "README"
+
+# 5. Star the Repository
+- tapOn: "Star"
+- waitForAnimationToEnd
+# Star count should increase (visual feedback)
+
+# 6. Explore Topics
+- back
+- tapOn: "Topics"
+- assertVisible: "Trending Topics"
+
+# 7. Follow a Topic
+- tapOn: "react"
+- tapOn: "Follow"
+- assertVisible: "Following"
+
+# 8. View Trending
+- tapOn: "Trending"
+- assertVisible: "#1"
+
+# 9. Change Trending Period
+- tapOn: "This Week"
+- waitForAnimationToEnd
+- assertVisible: "This Week"
+
+# 10. View Profile
+- tapOn: "Profile"
+- assertVisible: "Starred Repositories"
+- assertVisible: "Following"
+
+# 11. View Starred Repositories
+- tapOn: "Starred Repositories"
+- assertVisible:
+    text: "react-native"
+    timeout: 5000
+
+# 12. View Followed Topics
+- back
+- tapOn: "Following"
+- assertVisible: "react"
+
+# Critical Journey Complete
+- assertVisible: "Profile"

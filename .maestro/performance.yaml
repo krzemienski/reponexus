@@ -1,0 +1,62 @@
+appId: com.reponexus.ios
+---
+# Performance Tests
+
+# Test app launch time
+- launchApp
+- assertVisible:
+    text: "Explore"
+    timeout: 2000  # Must load in 2 seconds
+
+# Test navigation speed
+- tapOn: "Trending"
+- assertVisible:
+    text: "Trending"
+    timeout: 500   # Navigation must be fast (500ms)
+
+# Test search performance
+- tapOn: "Explore"
+- tapOn: "Search repositories"
+- inputText: "react"
+- assertVisible:
+    text: "React"
+    timeout: 1000  # Search results in 1 second
+
+# Test scroll performance - fast scrolling should not crash
+- scroll:
+    speed: fast
+    direction: down
+    duration: 2000
+
+- scroll:
+    speed: fast
+    direction: up
+    duration: 2000
+
+# Verify no jank - UI should still be responsive
+- assertVisible: "Search repositories"
+
+# Test rapid navigation
+- tapOn: "Trending"
+- tapOn: "Topics"
+- tapOn: "Profile"
+- tapOn: "Explore"
+- assertVisible: "Explore"
+
+# Test image loading performance
+- tapOn: "Trending"
+- assertVisible:
+    text: "Built by"
+    timeout: 3000  # Images should load within 3 seconds
+
+# Memory test - navigate through all screens multiple times
+- repeat:
+    times: 5
+    commands:
+      - tapOn: "Explore"
+      - tapOn: "Trending"
+      - tapOn: "Topics"
+      - tapOn: "Profile"
+
+# App should still be responsive
+- assertVisible: "Profile"

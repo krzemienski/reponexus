@@ -1,45 +1,89 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.db import get_db
+from app.core.rate_limit import rate_limit
+from app.services.search_service import SearchService
+from app.schemas.repository import RepositoryListResponse
+from app.schemas.topic import TopicListResponse
+from app.schemas.user import UserListResponse
+from app.schemas.common import PaginatedResponse, PaginationMetadata
+from typing import Optional, Dict, Any, List
 
 router = APIRouter()
 
 
 @router.get("/repositories")
+@rate_limit(requests=60, window=60)
 async def search_repositories(
-    q: str = Query(..., min_length=1),
+    request: Request,
+    q: str = Query(..., min_length=1, description="Search query"),
     page: int = Query(1, ge=1),
     per_page: int = Query(20, ge=1, le=100),
-    sort: str = Query("stars", regex="^(stars|forks|updated)$"),
+    sort: str = Query("stars", regex="^(stars|forks|updated|created)$"),
+    language: Optional[str] = None,
+    topic: Optional[str] = None,
+    min_stars: Optional[int] = Query(None, ge=0),
     db: AsyncSession = Depends(get_db),
 ):
     """
     Search repositories
     """
-    # TODO: Implement repository search
+    service = SearchService(db)
+
+    repositories, total, incomplete_results = await service.search_repositories(
+        query=q,
+        page=page,
+        per_page=per_page,
+        sort=sort,
+        language=language,
+        topic=topic,
+        min_stars=min_stars,
+    )
+
+    pages = (total + per_page - 1) // per_page
+
     return {
-        "data": [],
-        "total_count": 0,
-        "incomplete_results": False,
-        "pagination": {"total": 0, "page": page, "per_page": per_page, "pages": 0},
+        "data": [RepositoryListResponse.model_validate(repo) for repo in repositories],
+        "total_count": total,
+        "incomplete_results": incomplete_results,
+        "pagination": PaginationMetadata(
+            total=total,
+            page=page,
+            per_page=per_page,
+            pages=pages,
+        ).model_dump(),
     }
 
 
 @router.get("/topics")
+@rate_limit(requests=60, window=60)
 async def search_topics(
-    q: str = Query(..., min_length=1),
+    request: Request,
+    q: str = Query(..., min_length=1, description="Search query"),
+    limit: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
 ):
     """
     Search topics
     """
-    # TODO: Implement topic search
-    return {"data": [], "total_count": 0}
+    service = SearchService(db)
+
+    topics, total = await service.search_topics(
+        query=q,
+        limit=limit,
+    )
+
+    return {
+        "data": [TopicListResponse.model_validate(topic) for topic in topics],
+        "total_count": total,
+    }
 
 
 @router.get("/users")
+@rate_limit(requests=60, window=60)
 async def search_users(
-    q: str = Query(..., min_length=1),
+    request: Request,
+    q: str = Query(..., min_length=1, description="Search query"),
     page: int = Query(1, ge=1),
     per_page: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
@@ -47,9 +91,49 @@ async def search_users(
     """
     Search users
     """
-    # TODO: Implement user search
+    service = SearchService(db)
+
+    users, total = await service.search_users(
+        query=q,
+        page=page,
+        per_page=per_page,
+    )
+
+    pages = (total + per_page - 1) // per_page
+
     return {
-        "data": [],
-        "total_count": 0,
-        "pagination": {"total": 0, "page": page, "per_page": per_page, "pages": 0},
+        "data": [UserListResponse.model_validate(user) for user in users],
+        "total_count": total,
+        "pagination": PaginationMetadata(
+            total=total,
+            page=page,
+            per_page=per_page,
+            pages=pages,
+        ).model_dump(),
+    }
+
+
+@router.get("/all")
+@rate_limit(requests=60, window=60)
+async def search_all(
+    request: Request,
+    q: str = Query(..., min_length=1, description="Search query"),
+    limit: int = Query(5, ge=1, le=20),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Search across all entities (repositories, topics, users)
+    """
+    service = SearchService(db)
+
+    results = await service.search_all(
+        query=q,
+        limit=limit,
+    )
+
+    return {
+        "repositories": [RepositoryListResponse.model_validate(repo) for repo in results["repositories"]],
+        "topics": [TopicListResponse.model_validate(topic) for topic in results["topics"]],
+        "users": [UserListResponse.model_validate(user) for user in results["users"]],
+        "query": results["query"],
     }

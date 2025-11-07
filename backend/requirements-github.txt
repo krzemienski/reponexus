@@ -1,0 +1,26 @@
+# GitHub Integration Service Dependencies
+# Additional dependencies for Phase 5: GitHub Integration
+
+# HTTP Client
+httpx==0.25.2  # Async HTTP client for GitHub API
+
+# HTML Parsing (for trending page scraping)
+beautifulsoup4==4.12.2
+lxml==5.0.0  # Fast XML/HTML parser
+
+# Celery - Distributed Task Queue
+celery==5.3.4
+kombu==5.3.4  # Messaging library for Celery
+redis==5.0.1  # Redis client for Celery broker/backend
+
+# Async Support
+asyncio-redis==0.16.0  # Alternative async Redis client
+
+# Testing
+pytest==7.4.3
+pytest-asyncio==0.21.1
+pytest-mock==3.12.0
+pytest-cov==4.1.0
+
+# Note: These should be added to the main requirements.txt file
+# Some dependencies may already exist in the base requirements

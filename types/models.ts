@@ -102,6 +102,7 @@ export interface PaginatedResponse<T> {
 }
 
 // Filter Types
-export type SortOption = 'stars' | 'updated' | 'created' | 'forks';
+export type SortOption = 'stars' | 'updated' | 'created' | 'forks' | 'trending';
 export type TrendingPeriod = 'daily' | 'weekly' | 'monthly';
+export type TrendingTimeWindow = TrendingPeriod; // Alias for compatibility
 export type SearchType = 'repositories' | 'topics' | 'users';

@@ -29,6 +29,7 @@ class Topic(Base):
 
     # Relationships
     followers = relationship("UserTopic", back_populates="topic", cascade="all, delete-orphan")
+    suggestions = relationship("TopicSuggestion", back_populates="topic", cascade="all, delete-orphan")
 
     def __repr__(self) -> str:
         return f"<Topic(id={self.id}, name={self.name})>"

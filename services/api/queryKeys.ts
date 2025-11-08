@@ -53,6 +53,25 @@ export const queryKeys = {
     repositories: (query: string) => [...queryKeys.search.all, 'repositories', query] as const,
     topics: (query: string) => [...queryKeys.search.all, 'topics', query] as const,
   },
+
+  /**
+   * Suggestions-related query keys
+   */
+  suggestions: {
+    all: ['suggestions'] as const,
+    lists: () => [...queryKeys.suggestions.all, 'list'] as const,
+    list: (includeDismissed: boolean) =>
+      [...queryKeys.suggestions.lists(), includeDismissed] as const,
+  },
+
+  /**
+   * Sync-related query keys
+   */
+  sync: {
+    all: ['sync'] as const,
+    userStatus: () => [...queryKeys.sync.all, 'user-status'] as const,
+    status: (taskId: string) => [...queryKeys.sync.all, 'status', taskId] as const,
+  },
 } as const;
 
 /**

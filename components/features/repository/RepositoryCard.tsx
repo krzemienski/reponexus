@@ -7,18 +7,24 @@ import { Text } from '@/components/ui/Text';
 import { Badge } from '@/components/ui/Badge';
 import { Chip } from '@/components/ui/Chip';
 import { Shimmer } from '@/components/ui/Loading';
+import { TrendingBadge } from '@/components/features/trending/TrendingBadge';
 import type { Repository } from '@/types/models';
 
 interface RepositoryCardProps {
-  repository: Repository;
+  repository: Repository & {
+    trending_score?: number;
+    trending_time_window?: string;
+  };
   onStar?: () => void;
   isStarred?: boolean;
+  showTrending?: boolean;
 }
 
 export const RepositoryCard: React.FC<RepositoryCardProps> = ({
   repository,
   onStar,
   isStarred = false,
+  showTrending = false,
 }) => {
   const router = useRouter();
 
@@ -50,15 +56,21 @@ export const RepositoryCard: React.FC<RepositoryCardProps> = ({
             </Text>
           </View>
 
-          {onStar && (
-            <Pressable onPress={handleStarPress} hitSlop={8}>
-              <Ionicons
-                name={isStarred ? 'star' : 'star-outline'}
-                size={24}
-                color={isStarred ? '#fbbf24' : '#71717a'}
-              />
-            </Pressable>
-          )}
+          <View className="flex-row items-center space-x-2">
+            {showTrending && repository.trending_score && (
+              <TrendingBadge score={repository.trending_score} size="small" showLabel={false} />
+            )}
+
+            {onStar && (
+              <Pressable onPress={handleStarPress} hitSlop={8}>
+                <Ionicons
+                  name={isStarred ? 'star' : 'star-outline'}
+                  size={24}
+                  color={isStarred ? '#fbbf24' : '#71717a'}
+                />
+              </Pressable>
+            )}
+          </View>
         </View>
 
         {/* Description */}

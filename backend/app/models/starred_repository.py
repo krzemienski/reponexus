@@ -23,6 +23,7 @@ class StarredRepository(Base):
 
     # Metadata
     starred_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    synced_at = Column(DateTime, nullable=True)  # When this star was last synced from GitHub
 
     # Relationships
     user = relationship("User", back_populates="starred_repositories")

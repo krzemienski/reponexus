@@ -1,20 +1,32 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, ScrollView, RefreshControl, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Text, Button, Surface, Card, Chip, IconButton, Avatar } from 'react-native-paper';
+import { Text, Button, Surface, Card, Chip, IconButton, Avatar, Menu, SegmentedButtons } from 'react-native-paper';
 import { RepositoryList } from '@/components/features/repository/RepositoryList';
 import { useTopic, useTopicRepositories, useToggleTopicFollow } from '@/hooks/queries';
+import type { TrendingTimeWindow } from '@/types/models';
+
+type SortOption = 'stars' | 'updated' | 'created' | 'trending' | 'forks';
 
 export default function TopicDetailScreen() {
   const router = useRouter();
   const { name } = useLocalSearchParams<{ name: string }>();
+  const [sortBy, setSortBy] = useState<SortOption>('stars');
+  const [timeWindow, setTimeWindow] = useState<TrendingTimeWindow>('daily');
+  const [sortMenuVisible, setSortMenuVisible] = useState(false);
 
   // Fetch topic data from API
   const { data: topic, isLoading: isLoadingTopic, isError: isTopicError, error: topicError } = useTopic(name);
 
   // Fetch repositories for this topic
-  const { data: reposData, isLoading: isLoadingRepos, isError: isReposError, refetch, isFetching } = useTopicRepositories(name);
+  const { data: reposData, isLoading: isLoadingRepos, isError: isReposError, refetch, isFetching } = useTopicRepositories(
+    name,
+    {
+      sort: sortBy,
+      time_window: sortBy === 'trending' ? timeWindow : undefined,
+    } as any
+  );
 
   // Follow/unfollow mutation
   const { toggle: toggleFollow, isLoading: isTogglingFollow } = useToggleTopicFollow(name || '');
@@ -136,10 +148,66 @@ export default function TopicDetailScreen() {
 
         {/* Repository List */}
         <View style={{ flex: 1, paddingTop: 8 }}>
-          <View style={{ paddingHorizontal: 16, paddingVertical: 12 }}>
-            <Text variant="titleMedium" style={{ fontWeight: '600' }}>
-              Popular Repositories
-            </Text>
+          <View style={{ paddingHorizontal: 16, paddingVertical: 12, gap: 12 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Text variant="titleMedium" style={{ fontWeight: '600' }}>
+                Repositories
+              </Text>
+
+              <Menu
+                visible={sortMenuVisible}
+                onDismiss={() => setSortMenuVisible(false)}
+                anchor={
+                  <Button
+                    mode="outlined"
+                    onPress={() => setSortMenuVisible(true)}
+                    compact
+                    icon="sort"
+                  >
+                    Sort
+                  </Button>
+                }
+              >
+                <Menu.Item
+                  onPress={() => { setSortBy('stars'); setSortMenuVisible(false); }}
+                  title="Most Starred"
+                  leadingIcon={sortBy === 'stars' ? 'check' : 'star'}
+                />
+                <Menu.Item
+                  onPress={() => { setSortBy('trending'); setSortMenuVisible(false); }}
+                  title="Trending"
+                  leadingIcon={sortBy === 'trending' ? 'check' : 'fire'}
+                />
+                <Menu.Item
+                  onPress={() => { setSortBy('updated'); setSortMenuVisible(false); }}
+                  title="Recently Updated"
+                  leadingIcon={sortBy === 'updated' ? 'check' : 'clock'}
+                />
+                <Menu.Item
+                  onPress={() => { setSortBy('forks'); setSortMenuVisible(false); }}
+                  title="Most Forks"
+                  leadingIcon={sortBy === 'forks' ? 'check' : 'source-fork'}
+                />
+                <Menu.Item
+                  onPress={() => { setSortBy('created'); setSortMenuVisible(false); }}
+                  title="Recently Created"
+                  leadingIcon={sortBy === 'created' ? 'check' : 'calendar'}
+                />
+              </Menu>
+            </View>
+
+            {/* Time Window Selector (only for trending) */}
+            {sortBy === 'trending' && (
+              <SegmentedButtons
+                value={timeWindow}
+                onValueChange={(value) => setTimeWindow(value as TrendingTimeWindow)}
+                buttons={[
+                  { value: 'daily', label: 'Daily' },
+                  { value: 'weekly', label: 'Weekly' },
+                  { value: 'monthly', label: 'Monthly' },
+                ]}
+              />
+            )}
           </View>
 
           <ScrollView
@@ -160,6 +228,7 @@ export default function TopicDetailScreen() {
               isEmpty={repositories.length === 0}
               emptyTitle="No repositories found"
               emptyMessage={`No repositories found for the ${topic.displayName} topic.`}
+              showTrending={sortBy === 'trending'}
             />
           </ScrollView>
         </View>

@@ -24,24 +24,17 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="explore"
-        options={{
-          title: 'Explore',
-          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="explore" />,
-        }}
-      />
-      <Tabs.Screen
-        name="trending"
-        options={{
-          title: 'Trending',
-          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="trending" />,
-        }}
-      />
-      <Tabs.Screen
         name="topics"
         options={{
           title: 'Topics',
-          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="topics" />,
+          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="home" />,
+        }}
+      />
+      <Tabs.Screen
+        name="explore"
+        options={{
+          title: 'Explore',
+          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="trending" />,
         }}
       />
       <Tabs.Screen

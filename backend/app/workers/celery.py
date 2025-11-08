@@ -19,6 +19,7 @@ celery_app = Celery(
         "app.workers.sync_repos",
         "app.workers.sync_trending",
         "app.workers.sync_topics",
+        "app.workers.sync_tasks",
     ]
 )
 
@@ -95,6 +96,10 @@ celery_app.conf.task_routes = {
     "app.workers.sync_topics.*": {
         "queue": "topics",
         "routing_key": "topics.sync"
+    },
+    "app.workers.sync_tasks.*": {
+        "queue": "default",
+        "routing_key": "default"
     },
 }
 

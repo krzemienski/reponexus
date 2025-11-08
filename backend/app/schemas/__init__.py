@@ -94,6 +94,22 @@ from app.schemas.settings import (
     SettingsResponse,
     SettingsPreferencesResponse,
 )
+from app.schemas.suggestion import (
+    TopicSuggestionBase,
+    TopicSuggestionResponse,
+    TopicSuggestionListResponse,
+    GenerateSuggestionsResponse,
+    DismissSuggestionResponse,
+    AcceptSuggestionResponse,
+    ExampleRepository,
+)
+from app.schemas.sync import (
+    SyncRequest,
+    SyncResponse,
+    SyncStatusResponse,
+    SyncStatsResponse,
+    UserSyncStatusResponse,
+)
 
 __all__ = [
     # User schemas
@@ -169,6 +185,20 @@ __all__ = [
     "SettingsUpdate",
     "SettingsResponse",
     "SettingsPreferencesResponse",
+    # Suggestion schemas
+    "TopicSuggestionBase",
+    "TopicSuggestionResponse",
+    "TopicSuggestionListResponse",
+    "GenerateSuggestionsResponse",
+    "DismissSuggestionResponse",
+    "AcceptSuggestionResponse",
+    "ExampleRepository",
+    # Sync schemas
+    "SyncRequest",
+    "SyncResponse",
+    "SyncStatusResponse",
+    "SyncStatsResponse",
+    "UserSyncStatusResponse",
     # Common schemas
     "PaginationParams",
     "PaginationMetadata",

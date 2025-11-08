@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 
 from app.core.config import settings
 from app.core.db import engine, Base
-from app.api.v1 import auth, repositories, topics, users, search, webhooks, analytics, notifications
+from app.api.v1 import auth, repositories, topics, users, search, webhooks, analytics, notifications, explore, sync, suggestions
 from app.api.v1 import settings as settings_router
 from app.middleware.security import SecurityHeadersMiddleware, RequestIDMiddleware
 
@@ -98,6 +98,9 @@ app.include_router(analytics.router, prefix=f"{settings.API_V1_PREFIX}/analytics
 app.include_router(webhooks.router, prefix=settings.API_V1_PREFIX, tags=["webhooks"])
 app.include_router(notifications.router, prefix=f"{settings.API_V1_PREFIX}/notifications", tags=["notifications"])
 app.include_router(settings_router.router, prefix=f"{settings.API_V1_PREFIX}/settings", tags=["settings"])
+app.include_router(explore.router, prefix=f"{settings.API_V1_PREFIX}/explore", tags=["explore"])
+app.include_router(sync.router, prefix=f"{settings.API_V1_PREFIX}/sync", tags=["sync"])
+app.include_router(suggestions.router, prefix=f"{settings.API_V1_PREFIX}/suggestions", tags=["suggestions"])
 
 if __name__ == "__main__":
     import uvicorn

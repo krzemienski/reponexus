@@ -55,3 +55,14 @@ export {
   useToggleRepositoryStar,
   useToggleTopicFollow,
 } from './useMutations';
+
+// Trending hooks
+export {
+  useTrendingRepositories,
+  useFeaturedRepositories,
+  useTrendingConfig,
+  useTrendingStats,
+  getTrendingScoreColor,
+  formatTrendingScore,
+} from './useTrending';
+export type { TrendingRepository, TrendingConfig, TrendingStats } from './useTrending';

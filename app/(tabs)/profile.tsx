@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { Text, Button, Surface, List, Avatar, Divider, IconButton } from 'react-native-paper';
+import { Text, Button, Surface, List, Avatar, Divider, IconButton, ProgressBar } from 'react-native-paper';
 import { UserProfile } from '@/components/features/user/UserProfile';
 import { useCurrentUser } from '@/hooks/queries';
+import { useUserSyncStatus, useSyncWithStatus } from '@/hooks/queries/useSync';
 import type { User } from '@/types/models';
 
 export default function ProfileScreen() {
@@ -12,6 +13,16 @@ export default function ProfileScreen() {
 
   // Fetch current user data from API
   const { data: user, isLoading, isError, error } = useCurrentUser();
+
+  // Sync status and functionality
+  const { data: syncStatus } = useUserSyncStatus();
+  const {
+    triggerSync,
+    isLoading: isSyncing,
+    isSuccess: syncSuccess,
+    result: syncResult,
+    error: syncError,
+  } = useSyncWithStatus();
 
   const handleStatsPress = (type: 'repos' | 'followers' | 'following') => {
     console.log('Navigate to:', type);
@@ -39,6 +50,42 @@ export default function ProfileScreen() {
         },
       ]
     );
+  };
+
+  const handleSyncStarred = () => {
+    Alert.alert(
+      'Sync Starred Repos',
+      'This will fetch all your starred repositories from GitHub and generate topic suggestions. This may take a few minutes.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Sync Now',
+          onPress: () => {
+            triggerSync({});
+          },
+        },
+      ]
+    );
+  };
+
+  const handleViewSuggestions = () => {
+    router.push('/suggestions');
+  };
+
+  // Format last sync time
+  const formatLastSync = (dateString?: string) => {
+    if (!dateString) return 'Never synced';
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
+    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+    return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
   };
 
   // Loading state
@@ -171,6 +218,82 @@ export default function ProfileScreen() {
                   Following
                 </Text>
               </View>
+            </View>
+          </Surface>
+
+          {/* Sync Status Card */}
+          <Surface style={{ margin: 16, borderRadius: 12, elevation: 2, padding: 16 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+              <Text variant="titleMedium" style={{ fontWeight: 'bold' }}>
+                Starred Repos Sync
+              </Text>
+              {isSyncing && (
+                <IconButton icon="sync" size={20} iconColor="#0ea5e9" />
+              )}
+            </View>
+
+            {isSyncing && (
+              <View style={{ marginBottom: 12 }}>
+                <ProgressBar indeterminate color="#0ea5e9" />
+                <Text variant="bodySmall" style={{ marginTop: 8, opacity: 0.7 }}>
+                  Syncing your starred repositories...
+                </Text>
+              </View>
+            )}
+
+            {!isSyncing && syncSuccess && syncResult && (
+              <View style={{ marginBottom: 12, padding: 12, backgroundColor: '#22c55e20', borderRadius: 8 }}>
+                <Text variant="bodyMedium" style={{ color: '#22c55e', fontWeight: 'bold' }}>
+                  Sync Complete!
+                </Text>
+                <Text variant="bodySmall" style={{ opacity: 0.7, marginTop: 4 }}>
+                  {syncResult.totalStarred} repositories synced
+                </Text>
+              </View>
+            )}
+
+            {syncStatus && (
+              <View style={{ marginBottom: 12 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
+                  <Text variant="bodyMedium" style={{ opacity: 0.7 }}>
+                    Total Starred:
+                  </Text>
+                  <Text variant="bodyMedium" style={{ fontWeight: 'bold' }}>
+                    {syncStatus.totalStarred}
+                  </Text>
+                </View>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                  <Text variant="bodyMedium" style={{ opacity: 0.7 }}>
+                    Last Sync:
+                  </Text>
+                  <Text variant="bodyMedium" style={{ fontWeight: 'bold' }}>
+                    {formatLastSync(syncStatus.lastSyncAt)}
+                  </Text>
+                </View>
+              </View>
+            )}
+
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              <Button
+                mode="contained"
+                onPress={handleSyncStarred}
+                disabled={isSyncing}
+                icon="sync"
+                style={{ flex: 1 }}
+                buttonColor="#0ea5e9"
+              >
+                {isSyncing ? 'Syncing...' : syncStatus?.hasSynced ? 'Re-sync' : 'Sync Now'}
+              </Button>
+              {syncStatus?.hasSynced && (
+                <Button
+                  mode="outlined"
+                  onPress={handleViewSuggestions}
+                  icon="lightbulb-outline"
+                  style={{ flex: 1 }}
+                >
+                  Suggestions
+                </Button>
+              )}
             </View>
           </Surface>
 

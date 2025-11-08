@@ -62,6 +62,17 @@ export const API_ENDPOINTS = {
   USER_STARRED: '/api/v1/users/me/starred',
   USER_TOPICS: '/api/v1/users/me/topics',
   USER: (login: string) => `/api/v1/users/${login}`,
+
+  // Sync
+  SYNC_STARRED: '/api/v1/sync/starred',
+  SYNC_STATUS: (taskId: string) => `/api/v1/sync/status/${taskId}`,
+  SYNC_USER_STATUS: '/api/v1/sync/user-status',
+
+  // Suggestions
+  SUGGESTIONS_TOPICS: '/api/v1/suggestions/topics',
+  SUGGESTIONS_GENERATE: '/api/v1/suggestions/topics/generate',
+  SUGGESTION_DISMISS: (id: string) => `/api/v1/suggestions/topics/${id}/dismiss`,
+  SUGGESTION_ACCEPT: (id: string) => `/api/v1/suggestions/topics/${id}/accept`,
 } as const;
 
 // Colors (matching Tailwind config)

@@ -148,14 +148,68 @@ async def get_topic_repositories(
     topic_name: str,
     page: int = Query(1, ge=1),
     per_page: int = Query(20, ge=1, le=100),
-    sort: str = Query("stars", regex="^(stars|updated|created)$"),
+    sort: str = Query("stars", regex="^(stars|updated|created|trending|forks)$"),
+    time_window: str = Query("daily", regex="^(daily|weekly|monthly)$"),
     db: AsyncSession = Depends(get_db),
 ):
     """
     Get repositories for a topic
+
+    Sort options:
+    - stars: Sort by star count (default)
+    - updated: Sort by last updated
+    - created: Sort by creation date
+    - trending: Sort by trending score (uses time_window parameter)
+    - forks: Sort by fork count
+
+    Time window (only for trending sort):
+    - daily: Last 7 days (default)
+    - weekly: Last 30 days
+    - monthly: Last 90 days
     """
     service = TopicService(db)
 
+    # Handle trending sort differently
+    if sort == "trending":
+        from app.services.trending_service import TrendingService
+        from sqlalchemy import select
+        from app.models.topic import Topic
+
+        # Get topic
+        stmt = select(Topic).where(Topic.name == topic_name.lower())
+        result = await db.execute(stmt)
+        topic = result.scalar_one_or_none()
+
+        if not topic:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Topic not found",
+            )
+
+        # Get trending repos
+        trending_service = TrendingService(db)
+        offset = (page - 1) * per_page
+
+        repositories, total = await trending_service.get_trending_repos_for_topic(
+            topic_id=topic.id,
+            time_window=time_window,
+            limit=per_page,
+            offset=offset
+        )
+
+        pages = (total + per_page - 1) // per_page
+
+        return PaginatedResponse(
+            data=[RepositoryListResponse.model_validate(repo) for repo in repositories],
+            pagination=PaginationMetadata(
+                total=total,
+                page=page,
+                per_page=per_page,
+                pages=pages,
+            ),
+        )
+
+    # Regular sort
     repositories, total = await service.get_topic_repositories(
         topic_name=topic_name,
         page=page,

@@ -58,6 +58,64 @@ celery_app.conf.beat_schedule = {
         "options": {"priority": 3}
     },
 
+    # ==================== Topic-Centric Trending Tasks ====================
+
+    # Calculate daily trending for popular topics every 6 hours
+    "calculate-daily-trending-popular": {
+        "task": "refresh_trending_for_popular_topics",
+        "schedule": 21600.0,  # 6 hours
+        "args": ("daily", 50),
+        "options": {"priority": 8}
+    },
+
+    # Calculate weekly trending for popular topics every 12 hours
+    "calculate-weekly-trending-popular": {
+        "task": "refresh_trending_for_popular_topics",
+        "schedule": 43200.0,  # 12 hours
+        "args": ("weekly", 50),
+        "options": {"priority": 7}
+    },
+
+    # Calculate monthly trending for popular topics daily at 6 AM
+    "calculate-monthly-trending-popular": {
+        "task": "refresh_trending_for_popular_topics",
+        "schedule": crontab(hour=6, minute=0),
+        "args": ("monthly", 50),
+        "options": {"priority": 6}
+    },
+
+    # Update trending cache for topics every 5 minutes (daily window)
+    "update-trending-cache-topics-daily": {
+        "task": "update_trending_cache_for_topics",
+        "schedule": 300.0,  # 5 minutes
+        "args": ("daily",),
+        "options": {"priority": 9}
+    },
+
+    # Update trending cache for topics every 15 minutes (weekly window)
+    "update-trending-cache-topics-weekly": {
+        "task": "update_trending_cache_for_topics",
+        "schedule": 900.0,  # 15 minutes
+        "args": ("weekly",),
+        "options": {"priority": 8}
+    },
+
+    # Update trending cache for topics every 30 minutes (monthly window)
+    "update-trending-cache-topics-monthly": {
+        "task": "update_trending_cache_for_topics",
+        "schedule": 1800.0,  # 30 minutes
+        "args": ("monthly",),
+        "options": {"priority": 7}
+    },
+
+    # Cleanup trending scores older than 7 days - daily at 4 AM
+    "cleanup-trending-scores-daily": {
+        "task": "cleanup_trending_scores",
+        "schedule": crontab(hour=4, minute=0),
+        "args": (7,),
+        "options": {"priority": 3}
+    },
+
     # ==================== Repository Sync Tasks ====================
 
     # Full repository sync daily at 2 AM

@@ -80,7 +80,8 @@ export const getEnvironment = (): 'development' | 'staging' | 'production' => {
   if (isProduction()) {
     return 'production';
   }
-  if (process.env.NODE_ENV === 'staging') {
+  // Check for staging environment (custom env var or NODE_ENV)
+  if (process.env.EXPO_PUBLIC_ENV === 'staging' || (process.env.NODE_ENV as string) === 'staging') {
     return 'staging';
   }
   return 'development';

@@ -4,6 +4,7 @@
  * Provides hooks for syncing starred repos and monitoring sync status with TanStack Query.
  */
 
+import { useEffect } from 'react';
 import {
   useQuery,
   useMutation,
@@ -148,15 +149,17 @@ export function useSyncWithStatus() {
   const taskId = syncMutation.data?.taskId;
 
   // Monitor the sync status
-  const statusQuery = useSyncStatus(taskId, {
-    onSuccess: (data) => {
-      // If sync completed successfully, invalidate relevant queries
-      if (data.ready && data.successful) {
-        queryClient.invalidateQueries({ queryKey: queryKeys.sync.userStatus() });
-        queryClient.invalidateQueries({ queryKey: queryKeys.suggestions.all });
-      }
-    },
-  });
+  const statusQuery = useSyncStatus(taskId);
+
+  // Handle successful sync completion
+  useEffect(() => {
+    const data = statusQuery.data;
+    // If sync completed successfully, invalidate relevant queries
+    if (data?.ready && data?.successful) {
+      queryClient.invalidateQueries({ queryKey: queryKeys.sync.userStatus() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.suggestions.all });
+    }
+  }, [statusQuery.data?.ready, statusQuery.data?.successful, queryClient]);
 
   return {
     // Sync trigger

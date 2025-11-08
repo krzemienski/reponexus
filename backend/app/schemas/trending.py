@@ -71,7 +71,7 @@ class TrendingListResponse(BaseModel):
 
 class TrendingQueryParams(BaseModel):
     """Query parameters for trending endpoints"""
-    time_window: str = Field("daily", regex="^(daily|weekly|monthly)$", description="Time window")
+    time_window: str = Field("daily", pattern="^(daily|weekly|monthly)$", description="Time window")
     topic_filter: Optional[UUID] = Field(None, description="Optional topic UUID filter")
     limit: int = Field(20, ge=1, le=100, description="Number of results")
     offset: int = Field(0, ge=0, description="Offset for pagination")

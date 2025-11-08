@@ -102,7 +102,7 @@ async def get_starred_repositories(
     request: Request,
     page: int = Query(1, ge=1),
     per_page: int = Query(20, ge=1, le=100),
-    sort: str = Query("starred_at", regex="^(starred_at|stars|updated)$"),
+    sort: str = Query("starred_at", pattern="^(starred_at|stars|updated)$"),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):

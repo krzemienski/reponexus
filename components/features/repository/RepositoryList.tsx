@@ -23,6 +23,7 @@ interface RepositoryListProps {
   emptyMessage?: string;
   errorType?: 'network' | 'server' | 'notFound' | 'unauthorized' | 'general';
   onRetry?: () => void;
+  showTrending?: boolean;
 }
 
 export const RepositoryList: React.FC<RepositoryListProps> = ({
@@ -41,6 +42,7 @@ export const RepositoryList: React.FC<RepositoryListProps> = ({
   emptyMessage = 'Try adjusting your search or filters.',
   errorType = 'general',
   onRetry,
+  showTrending = false,
 }) => {
   // Show loading skeleton on initial load
   if (isLoading && repositories.length === 0) {
@@ -75,6 +77,7 @@ export const RepositoryList: React.FC<RepositoryListProps> = ({
         repository={item}
         onStar={onStar ? () => onStar(item.id) : undefined}
         isStarred={starredRepositories.has(item.id)}
+        showTrending={showTrending}
       />
     </View>
   );

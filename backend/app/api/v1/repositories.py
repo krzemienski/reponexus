@@ -28,7 +28,7 @@ async def list_repositories(
     request: Request,
     page: int = Query(1, ge=1),
     per_page: int = Query(20, ge=1, le=100),
-    sort: str = Query("stars", regex="^(stars|updated|created)$"),
+    sort: str = Query("stars", pattern="^(stars|updated|created)$"),
     language: Optional[str] = None,
     topic: Optional[str] = None,
     min_stars: Optional[int] = Query(None, ge=0),
@@ -72,7 +72,7 @@ async def list_repositories(
 @rate_limit(requests=60, window=60)
 async def get_trending(
     request: Request,
-    period: str = Query("daily", regex="^(daily|weekly|monthly)$"),
+    period: str = Query("daily", pattern="^(daily|weekly|monthly)$"),
     language: Optional[str] = None,
     limit: int = Query(25, ge=1, le=100),
     db: AsyncSession = Depends(get_db),

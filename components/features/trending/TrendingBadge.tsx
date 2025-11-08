@@ -65,12 +65,12 @@ export function TrendingBadge({ score, size = 'medium', showLabel = true }: Tren
   const config = sizeConfig[size];
 
   return (
-    <View style={[styles.container, { padding: config.padding }]}>
+    <View style={[badgeStyles.container, { padding: config.padding }]}>
       <MaterialCommunityIcons name="fire" size={config.iconSize} color={color} />
       <Text
         variant="labelSmall"
         style={[
-          styles.scoreText,
+          badgeStyles.scoreText,
           {
             color,
             fontSize: config.textSize,
@@ -84,7 +84,7 @@ export function TrendingBadge({ score, size = 'medium', showLabel = true }: Tren
         <Text
           variant="labelSmall"
           style={[
-            styles.labelText,
+            badgeStyles.labelText,
             {
               fontSize: config.textSize - 2,
               color: theme.colors.onSurfaceVariant,
@@ -98,7 +98,7 @@ export function TrendingBadge({ score, size = 'medium', showLabel = true }: Tren
   );
 }
 
-const styles = StyleSheet.create({
+const badgeStyles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -140,7 +140,7 @@ export function TrendingScorePill({ score }: { score: number | undefined }) {
   return (
     <View
       style={[
-        styles.pill,
+        pillStyles.pill,
         {
           backgroundColor: `${color}15`, // 15% opacity
           borderColor: `${color}40`, // 40% opacity
@@ -151,7 +151,7 @@ export function TrendingScorePill({ score }: { score: number | undefined }) {
       <Text
         variant="labelSmall"
         style={[
-          styles.pillText,
+          pillStyles.pillText,
           {
             color,
           },
@@ -178,5 +178,3 @@ const pillStyles = StyleSheet.create({
     fontWeight: '600',
   },
 });
-
-const styles = { ...styles, ...pillStyles };

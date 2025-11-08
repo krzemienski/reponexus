@@ -21,7 +21,7 @@ async def search_repositories(
     q: str = Query(..., min_length=1, description="Search query"),
     page: int = Query(1, ge=1),
     per_page: int = Query(20, ge=1, le=100),
-    sort: str = Query("stars", regex="^(stars|forks|updated|created)$"),
+    sort: str = Query("stars", pattern="^(stars|forks|updated|created)$"),
     language: Optional[str] = None,
     topic: Optional[str] = None,
     min_stars: Optional[int] = Query(None, ge=0),

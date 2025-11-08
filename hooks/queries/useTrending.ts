@@ -3,7 +3,9 @@
  * Fetches trending repos from user's followed topics with caching and auto-refresh
  */
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
-import { api } from '@/services/api';
+import apiClient from '@/services/api/client';
+import { queryKeys } from '@/services/api/queryKeys';
+import { API_ENDPOINTS } from '@/utils/constants';
 import type { Repository, PaginatedResponse, TrendingTimeWindow } from '@/types/models';
 
 // Extended repository type with trending information
@@ -76,7 +78,7 @@ export function useTrendingRepositories({
         params.append('topic_filter', topicFilter);
       }
 
-      const response = await api.get<PaginatedResponse<TrendingRepository>>(
+      const response = await apiClient.get<PaginatedResponse<TrendingRepository>>(
         `/explore/trending?${params.toString()}`
       );
 
@@ -110,7 +112,7 @@ export function useFeaturedRepositories({
         per_page: perPage.toString(),
       });
 
-      const response = await api.get<PaginatedResponse<TrendingRepository>>(
+      const response = await apiClient.get<PaginatedResponse<TrendingRepository>>(
         `/explore/featured?${params.toString()}`
       );
 
@@ -129,7 +131,7 @@ export function useTrendingConfig(): UseQueryResult<TrendingConfig> {
   return useQuery({
     queryKey: ['trending', 'config'],
     queryFn: async () => {
-      const response = await api.get<TrendingConfig>('/explore/trending/config');
+      const response = await apiClient.get<TrendingConfig>('/explore/trending/config');
       return response.data;
     },
     staleTime: Infinity, // Config rarely changes
@@ -144,7 +146,7 @@ export function useTrendingStats(): UseQueryResult<TrendingStats> {
   return useQuery({
     queryKey: ['trending', 'stats'],
     queryFn: async () => {
-      const response = await api.get<TrendingStats>('/explore/trending/stats');
+      const response = await apiClient.get<TrendingStats>('/explore/trending/stats');
       return response.data;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes

@@ -148,8 +148,8 @@ async def get_topic_repositories(
     topic_name: str,
     page: int = Query(1, ge=1),
     per_page: int = Query(20, ge=1, le=100),
-    sort: str = Query("stars", regex="^(stars|updated|created|trending|forks)$"),
-    time_window: str = Query("daily", regex="^(daily|weekly|monthly)$"),
+    sort: str = Query("stars", pattern="^(stars|updated|created|trending|forks)$"),
+    time_window: str = Query("daily", pattern="^(daily|weekly|monthly)$"),
     db: AsyncSession = Depends(get_db),
 ):
     """

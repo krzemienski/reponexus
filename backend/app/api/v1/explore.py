@@ -27,7 +27,7 @@ router = APIRouter()
 @rate_limit(requests=60, window=60)
 async def get_trending_repositories(
     request: Request,
-    time_window: str = Query("daily", regex="^(daily|weekly|monthly)$"),
+    time_window: str = Query("daily", pattern="^(daily|weekly|monthly)$"),
     topic_filter: Optional[UUID] = Query(None, description="Optional topic UUID to filter by"),
     page: int = Query(1, ge=1),
     per_page: int = Query(20, ge=1, le=100),

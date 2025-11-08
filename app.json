@@ -19,7 +19,9 @@
       "infoPlist": {
         "CFBundleURLTypes": [
           {
-            "CFBundleURLSchemes": ["reponexus"]
+            "CFBundleURLSchemes": [
+              "reponexus"
+            ]
           }
         ],
         "NSFaceIDUsageDescription": "We use Face ID to securely authenticate you.",
@@ -37,7 +39,9 @@
         "INTERNET",
         "ACCESS_NETWORK_STATE",
         "USE_BIOMETRIC",
-        "USE_FINGERPRINT"
+        "USE_FINGERPRINT",
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.USE_FINGERPRINT"
       ],
       "intentFilters": [
         {
@@ -49,7 +53,10 @@
               "host": "callback"
             }
           ],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ]
     },
@@ -70,12 +77,16 @@
       "typedRoutes": true
     },
     "extra": {
-      "eas": {
-        "projectId": "repo-nexus-project"
-      },
       "EXPO_PUBLIC_API_URL": "${EXPO_PUBLIC_API_URL}",
       "EXPO_PUBLIC_WS_URL": "${EXPO_PUBLIC_WS_URL}",
-      "EXPO_PUBLIC_GITHUB_CLIENT_ID": "${EXPO_PUBLIC_GITHUB_CLIENT_ID}"
-    }
+      "EXPO_PUBLIC_GITHUB_CLIENT_ID": "${EXPO_PUBLIC_GITHUB_CLIENT_ID}",
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "7034aab3-91ed-4ee8-9846-d77ea590579b"
+      }
+    },
+    "owner": "krzemienski"
   }
 }

@@ -37,6 +37,7 @@ export const API_ENDPOINTS = {
   REFRESH: '/api/v1/auth/refresh',
   LOGOUT: '/api/v1/auth/logout',
   ME: '/api/v1/auth/me',
+  TOKEN_AUTH: '/api/v1/auth/token',
 
   // Repositories
   REPOSITORIES: '/api/v1/repositories',

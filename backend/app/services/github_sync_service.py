@@ -231,9 +231,9 @@ class GitHubSyncService:
             "html_url": repo_data["html_url"],
             "api_url": repo_data["url"],
             "clone_url": repo_data.get("clone_url"),
-            "created_at": datetime.fromisoformat(repo_data["created_at"].replace("Z", "+00:00")),
-            "updated_at": datetime.fromisoformat(repo_data["updated_at"].replace("Z", "+00:00")),
-            "pushed_at": datetime.fromisoformat(repo_data["pushed_at"].replace("Z", "+00:00")) if repo_data.get("pushed_at") else None,
+            "created_at": datetime.fromisoformat(repo_data["created_at"].replace("Z", "+00:00")).replace(tzinfo=None),
+            "updated_at": datetime.fromisoformat(repo_data["updated_at"].replace("Z", "+00:00")).replace(tzinfo=None),
+            "pushed_at": datetime.fromisoformat(repo_data["pushed_at"].replace("Z", "+00:00")).replace(tzinfo=None) if repo_data.get("pushed_at") else None,
             "last_fetched_at": datetime.utcnow(),
         }
 
@@ -282,7 +282,7 @@ class GitHubSyncService:
         # Parse starred_at timestamp
         if starred_at:
             try:
-                starred_timestamp = datetime.fromisoformat(starred_at.replace("Z", "+00:00"))
+                starred_timestamp = datetime.fromisoformat(starred_at.replace("Z", "+00:00")).replace(tzinfo=None)
             except:
                 starred_timestamp = datetime.utcnow()
         else:

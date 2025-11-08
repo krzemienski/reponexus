@@ -568,6 +568,34 @@ class GitHubService:
         self.circuit_breaker.state = CircuitState.CLOSED
         logger.info("Circuit breaker manually reset")
 
+    async def execute_graphql(
+        self,
+        query: str,
+        variables: Optional[Dict[str, Any]] = None,
+        token: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Execute a GraphQL query against GitHub's GraphQL API
+
+        Args:
+            query: GraphQL query string
+            variables: Query variables
+            token: GitHub access token
+
+        Returns:
+            Query result data
+        """
+        from app.services.github_graphql import get_github_graphql_client
+
+        graphql_client = get_github_graphql_client()
+
+        try:
+            result = await graphql_client.query(query, variables, token)
+            return result
+        except Exception as e:
+            logger.error(f"GraphQL query failed: {e}")
+            return {}
+
 
 # Singleton instance
 _github_service: Optional[GitHubService] = None

@@ -14,7 +14,7 @@ from app.models import user, repository, topic, starred_repository, analytics, a
 config = context.config
 
 # Override sqlalchemy.url with our settings
-config.set_main_option("sqlalchemy.url", settings.DATABASE_URL.replace("+asyncpg", ""))
+config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
 
 # Interpret the config file for Python logging
 if config.config_file_name is not None:

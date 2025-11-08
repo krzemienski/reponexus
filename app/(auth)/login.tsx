@@ -142,10 +142,23 @@ export default function LoginScreen() {
             mode="outlined"
             onPress={handleBiometricLogin}
             icon="fingerprint"
-            style={{ paddingVertical: 8 }}
+            style={{ marginBottom: 16, paddingVertical: 8 }}
             contentStyle={{ paddingVertical: 4 }}
           >
             Use Biometric
+          </Button>
+        )}
+
+        {/* Token Login (dev only) */}
+        {__DEV__ && !isLoading && (
+          <Button
+            mode="text"
+            onPress={() => router.push('/(auth)/token-login')}
+            icon="key"
+            style={{ paddingVertical: 8 }}
+            contentStyle={{ paddingVertical: 4 }}
+          >
+            Test with Token (Dev)
           </Button>
         )}
       </View>

@@ -56,6 +56,10 @@ class Settings(BaseSettings):
     # Rate Limiting
     RATE_LIMIT_PER_MINUTE: int = 60
 
+    # Token Authentication
+    TEST_GITHUB_TOKEN: str = ""
+    ENABLE_TOKEN_AUTH: bool = False
+
     class Config:
         env_file = ".env"
         case_sensitive = True

@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 
 from app.core.config import settings
 from app.core.db import engine, Base
-from app.api.v1 import auth, repositories, topics, users, search, webhooks, analytics, notifications, explore, sync, suggestions
+from app.api.v1 import auth, repositories, topics, users, search, webhooks, analytics, notifications, explore, sync, suggestions, auth_token
 from app.api.v1 import settings as settings_router
 from app.middleware.security import SecurityHeadersMiddleware, RequestIDMiddleware
 
@@ -86,6 +86,7 @@ async def root():
 
 # Include API routers
 app.include_router(auth.router, prefix=f"{settings.API_V1_PREFIX}/auth", tags=["auth"])
+app.include_router(auth_token.router, prefix=f"{settings.API_V1_PREFIX}/auth", tags=["auth"])
 app.include_router(
     repositories.router,
     prefix=f"{settings.API_V1_PREFIX}/repositories",

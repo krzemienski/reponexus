@@ -55,7 +55,7 @@ class TopicSuggestionEngine:
                 joinedload(User.followed_topics).joinedload(UserTopic.topic)
             )
             result = await session.execute(stmt)
-            user = result.scalar_one_or_none()
+            user = result.unique().scalar_one_or_none()
 
             if not user:
                 logger.error(f"User not found: {user_id}")

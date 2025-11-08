@@ -5,85 +5,10 @@ import { Searchbar, Text, Chip, Button, Surface, Divider } from 'react-native-pa
 import { useRouter } from 'expo-router';
 import { RepositoryList } from '@/components/features/repository/RepositoryList';
 import { FilterSheet } from '@/components/features/search/FilterSheet';
+import { useRepositories } from '@/hooks/queries';
 import type { SortOption } from '@/types/models';
 
 const TRENDING_TOPICS = ['React', 'TypeScript', 'Python', 'Go', 'Rust', 'AI', 'Web3'];
-
-// Mock repository data for testing
-const MOCK_REPOSITORIES = [
-  {
-    id: '1',
-    githubId: '10270250',
-    nodeId: 'MDEwOlJlcG9zaXRvcnkxMDI3MDI1MA==',
-    nameWithOwner: 'facebook/react',
-    name: 'react',
-    ownerLogin: 'facebook',
-    description: 'A declarative, efficient, and flexible JavaScript library for building user interfaces.',
-    isPrivate: false,
-    isFork: false,
-    isArchived: false,
-    stargazerCount: 234000,
-    watcherCount: 6789,
-    forkCount: 45678,
-    openIssuesCount: 1234,
-    primaryLanguage: 'JavaScript',
-    languages: { JavaScript: 80, TypeScript: 15, CSS: 5 } as Record<string, number>,
-    topics: ['javascript', 'react', 'frontend', 'ui', 'declarative'],
-    htmlUrl: 'https://github.com/facebook/react',
-    apiUrl: 'https://api.github.com/repos/facebook/react',
-    createdAt: new Date('2013-05-24').toISOString(),
-    updatedAt: new Date().toISOString(),
-    lastFetchedAt: new Date().toISOString(),
-  },
-  {
-    id: '2',
-    githubId: '28457823',
-    nodeId: 'MDEwOlJlcG9zaXRvcnkyODQ1NzgyMw==',
-    nameWithOwner: 'microsoft/typescript',
-    name: 'TypeScript',
-    ownerLogin: 'microsoft',
-    description: 'TypeScript is a superset of JavaScript that compiles to clean JavaScript output.',
-    isPrivate: false,
-    isFork: false,
-    isArchived: false,
-    stargazerCount: 108000,
-    watcherCount: 3200,
-    forkCount: 13400,
-    openIssuesCount: 6789,
-    primaryLanguage: 'TypeScript',
-    languages: { TypeScript: 95, JavaScript: 5 } as Record<string, number>,
-    topics: ['typescript', 'language', 'javascript', 'compiler'],
-    htmlUrl: 'https://github.com/microsoft/TypeScript',
-    apiUrl: 'https://api.github.com/repos/microsoft/TypeScript',
-    createdAt: new Date('2014-06-17').toISOString(),
-    updatedAt: new Date().toISOString(),
-    lastFetchedAt: new Date().toISOString(),
-  },
-  {
-    id: '3',
-    githubId: '22514524',
-    nodeId: 'MDEwOlJlcG9zaXRvcnkyMjUxNDUyNA==',
-    nameWithOwner: 'vercel/next.js',
-    name: 'next.js',
-    ownerLogin: 'vercel',
-    description: 'The React Framework for Production',
-    isPrivate: false,
-    isFork: false,
-    isArchived: false,
-    stargazerCount: 134000,
-    watcherCount: 1900,
-    forkCount: 27000,
-    openIssuesCount: 2456,
-    primaryLanguage: 'JavaScript',
-    languages: { JavaScript: 70, TypeScript: 28, CSS: 2 } as Record<string, number>,
-    topics: ['react', 'nextjs', 'framework', 'ssr', 'static-site'],
-    htmlUrl: 'https://github.com/vercel/next.js',
-    apiUrl: 'https://api.github.com/repos/vercel/next.js',
-    createdAt: new Date('2016-10-05').toISOString(),
-    updatedAt: new Date().toISOString(),
-    lastFetchedAt: new Date().toISOString(),
-  },
-];
 
 export default function ExploreScreen() {
   const router = useRouter();
@@ -91,12 +16,15 @@ export default function ExploreScreen() {
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<SortOption>('stars');
   const [filterVisible, setFilterVisible] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
 
-  // Use mock data for testing
-  const repositories = MOCK_REPOSITORIES;
-  const isLoading = false;
-  const isError = false;
+  // Fetch repositories from API
+  const { data, isLoading, isError, refetch, isFetching } = useRepositories({
+    sort: sortBy,
+    topic: selectedTopic || undefined,
+  });
+
+  const repositories = data?.data || [];
+  const refreshing = isFetching;
 
   const handleTopicPress = (topic: string) => {
     setSelectedTopic(selectedTopic === topic ? null : topic);
@@ -116,11 +44,7 @@ export default function ExploreScreen() {
   };
 
   const handleRefresh = async () => {
-    setRefreshing(true);
-    // Simulate refresh delay
-    setTimeout(() => {
-      setRefreshing(false);
-    }, 1000);
+    await refetch();
   };
 
   return (

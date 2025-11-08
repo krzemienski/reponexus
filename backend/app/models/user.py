@@ -49,6 +49,9 @@ class User(Base):
     starred_repositories = relationship("StarredRepository", back_populates="user", cascade="all, delete-orphan")
     followed_topics = relationship("UserTopic", back_populates="user", cascade="all, delete-orphan")
     analytics_events = relationship("AnalyticsEvent", back_populates="user", cascade="all, delete-orphan")
+    search_history = relationship("SearchHistory", back_populates="user", cascade="all, delete-orphan")
+    notifications = relationship("Notification", back_populates="user", cascade="all, delete-orphan")
+    settings = relationship("Settings", back_populates="user", cascade="all, delete-orphan", uselist=False)
 
     def __repr__(self) -> str:
         return f"<User(id={self.id}, login={self.login})>"

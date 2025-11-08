@@ -66,6 +66,34 @@ from app.schemas.common import (
     ErrorResponse,
     SuccessResponse,
 )
+from app.schemas.search_history import (
+    SearchResultType,
+    SearchHistoryBase,
+    SearchHistoryCreate,
+    SearchHistoryResponse,
+    SearchHistoryListResponse,
+    SearchAutocompleteResponse,
+    PopularSearchesResponse,
+)
+from app.schemas.notification import (
+    NotificationType,
+    NotificationBase,
+    NotificationCreate,
+    NotificationUpdate,
+    NotificationResponse,
+    NotificationListResponse,
+    NotificationStatsResponse,
+    MarkAllReadResponse,
+    BulkNotificationCreate,
+)
+from app.schemas.settings import (
+    ThemeType,
+    SettingsBase,
+    SettingsCreate,
+    SettingsUpdate,
+    SettingsResponse,
+    SettingsPreferencesResponse,
+)
 
 __all__ = [
     # User schemas
@@ -116,6 +144,31 @@ __all__ = [
     "SearchAnalyticsResponse",
     "EngagementMetrics",
     "TrendingMetrics",
+    # SearchHistory schemas
+    "SearchResultType",
+    "SearchHistoryBase",
+    "SearchHistoryCreate",
+    "SearchHistoryResponse",
+    "SearchHistoryListResponse",
+    "SearchAutocompleteResponse",
+    "PopularSearchesResponse",
+    # Notification schemas
+    "NotificationType",
+    "NotificationBase",
+    "NotificationCreate",
+    "NotificationUpdate",
+    "NotificationResponse",
+    "NotificationListResponse",
+    "NotificationStatsResponse",
+    "MarkAllReadResponse",
+    "BulkNotificationCreate",
+    # Settings schemas
+    "ThemeType",
+    "SettingsBase",
+    "SettingsCreate",
+    "SettingsUpdate",
+    "SettingsResponse",
+    "SettingsPreferencesResponse",
     # Common schemas
     "PaginationParams",
     "PaginationMetadata",

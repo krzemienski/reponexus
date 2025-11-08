@@ -1,96 +1,85 @@
-import React, { useState } from 'react';
-import { View, ScrollView, RefreshControl } from 'react-native';
+import React from 'react';
+import { View, ScrollView, RefreshControl, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Text, Button, Surface, Card, Chip, IconButton, Avatar } from 'react-native-paper';
 import { RepositoryList } from '@/components/features/repository/RepositoryList';
-
-// Mock repositories for the topic
-const MOCK_TOPIC_REPOS = [
-  {
-    id: '1',
-    githubId: '10270250',
-    nodeId: 'MDEwOlJlcG9zaXRvcnkxMDI3MDI1MA==',
-    nameWithOwner: 'facebook/react',
-    name: 'react',
-    ownerLogin: 'facebook',
-    description: 'A declarative, efficient, and flexible JavaScript library for building user interfaces.',
-    isPrivate: false,
-    isFork: false,
-    isArchived: false,
-    stargazerCount: 234000,
-    watcherCount: 6789,
-    forkCount: 45678,
-    openIssuesCount: 1234,
-    primaryLanguage: 'JavaScript',
-    languages: { JavaScript: 80, TypeScript: 15, CSS: 5 },
-    topics: ['javascript', 'react', 'frontend', 'ui', 'declarative'],
-    htmlUrl: 'https://github.com/facebook/react',
-    apiUrl: 'https://api.github.com/repos/facebook/react',
-    createdAt: new Date('2013-05-24').toISOString(),
-    updatedAt: new Date().toISOString(),
-    lastFetchedAt: new Date().toISOString(),
-  },
-  {
-    id: '2',
-    githubId: '22514524',
-    nodeId: 'MDEwOlJlcG9zaXRvcnkyMjUxNDUyNA==',
-    nameWithOwner: 'vercel/next.js',
-    name: 'next.js',
-    ownerLogin: 'vercel',
-    description: 'The React Framework for Production',
-    isPrivate: false,
-    isFork: false,
-    isArchived: false,
-    stargazerCount: 134000,
-    watcherCount: 1900,
-    forkCount: 27000,
-    openIssuesCount: 2456,
-    primaryLanguage: 'JavaScript',
-    languages: { JavaScript: 70, TypeScript: 28, CSS: 2 },
-    topics: ['react', 'nextjs', 'framework', 'ssr', 'static-site'],
-    htmlUrl: 'https://github.com/vercel/next.js',
-    apiUrl: 'https://api.github.com/repos/vercel/next.js',
-    createdAt: new Date('2016-10-05').toISOString(),
-    updatedAt: new Date().toISOString(),
-    lastFetchedAt: new Date().toISOString(),
-  },
-];
+import { useTopic, useTopicRepositories, useToggleTopicFollow } from '@/hooks/queries';
 
 export default function TopicDetailScreen() {
   const router = useRouter();
-  const { name } = useLocalSearchParams();
-  const [isFollowing, setIsFollowing] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const { name } = useLocalSearchParams<{ name: string }>();
 
-  // Mock data - in production, this would come from React Query
-  const topic = {
-    name: name as string,
-    displayName: (name as string).charAt(0).toUpperCase() + (name as string).slice(1),
-    description: 'A popular topic with many repositories and active contributors.',
-    repositoryCount: 45678,
-    relatedTopics: ['javascript', 'typescript', 'frontend', 'web'],
-  };
+  // Fetch topic data from API
+  const { data: topic, isLoading: isLoadingTopic, isError: isTopicError, error: topicError } = useTopic(name);
 
-  const repositories = MOCK_TOPIC_REPOS;
-  const isLoading = false;
-  const isError = false;
+  // Fetch repositories for this topic
+  const { data: reposData, isLoading: isLoadingRepos, isError: isReposError, refetch, isFetching } = useTopicRepositories(name);
+
+  // Follow/unfollow mutation
+  const { toggle: toggleFollow, isLoading: isTogglingFollow } = useToggleTopicFollow(name || '');
+
+  const repositories = reposData?.data || [];
+  const isRefreshing = isFetching;
+  const isLoading = isLoadingTopic || isLoadingRepos;
+  const isError = isTopicError || isReposError;
 
   const handleFollow = () => {
-    setIsFollowing(!isFollowing);
+    if (topic) {
+      toggleFollow(topic.isFollowed);
+    }
   };
 
   const handleRefresh = async () => {
-    setIsRefreshing(true);
-    // Simulate refresh
-    setTimeout(() => {
-      setIsRefreshing(false);
-    }, 1000);
+    await refetch();
   };
 
   const handleRelatedTopicPress = (relatedTopic: string) => {
     router.push(`/topic/${relatedTopic}`);
   };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <SafeAreaView style={{ flex: 1 }}>
+        <Surface style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" />
+          <Text variant="bodyMedium" style={{ marginTop: 16, opacity: 0.7 }}>
+            Loading topic...
+          </Text>
+        </Surface>
+      </SafeAreaView>
+    );
+  }
+
+  // Error state
+  if (isError || !topic) {
+    return (
+      <SafeAreaView style={{ flex: 1 }}>
+        <Surface style={{ flex: 1 }}>
+          <View style={{ padding: 16 }}>
+            <IconButton
+              icon="arrow-left"
+              size={24}
+              onPress={() => router.back()}
+            />
+          </View>
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 }}>
+            <IconButton icon="alert-circle" size={48} iconColor="#ef4444" />
+            <Text variant="titleLarge" style={{ fontWeight: 'bold', marginTop: 16, textAlign: 'center' }}>
+              Failed to Load Topic
+            </Text>
+            <Text variant="bodyMedium" style={{ marginTop: 8, opacity: 0.7, textAlign: 'center' }}>
+              {topicError?.message || 'Unable to fetch topic data. Please try again.'}
+            </Text>
+            <Button mode="contained" onPress={() => router.back()} style={{ marginTop: 24 }}>
+              Go Back
+            </Button>
+          </View>
+        </Surface>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -131,37 +120,18 @@ export default function TopicDetailScreen() {
             )}
 
             <Button
-              mode={isFollowing ? 'outlined' : 'contained'}
+              mode={topic.isFollowed ? 'outlined' : 'contained'}
               onPress={handleFollow}
-              icon={isFollowing ? 'check' : 'plus'}
+              icon={topic.isFollowed ? 'check' : 'plus'}
               style={{ minWidth: 192 }}
+              disabled={isTogglingFollow}
+              loading={isTogglingFollow}
             >
-              {isFollowing ? 'Following' : 'Follow'}
+              {topic.isFollowed ? 'Following' : 'Follow'}
             </Button>
           </View>
 
-          {/* Related Topics */}
-          {topic.relatedTopics && topic.relatedTopics.length > 0 && (
-            <Card mode="contained">
-              <Card.Content>
-                <Text variant="bodyMedium" style={{ fontWeight: '600', marginBottom: 12 }}>
-                  Related Topics
-                </Text>
-                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-                  {topic.relatedTopics.map((relatedTopic) => (
-                    <Chip
-                      key={relatedTopic}
-                      icon="tag"
-                      onPress={() => handleRelatedTopicPress(relatedTopic)}
-                      mode="outlined"
-                    >
-                      {relatedTopic}
-                    </Chip>
-                  ))}
-                </View>
-              </Card.Content>
-            </Card>
-          )}
+          {/* Note: Related Topics would need to be added to the Topic model in the API */}
         </View>
 
         {/* Repository List */}

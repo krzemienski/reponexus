@@ -4,70 +4,22 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Text, Searchbar, Button, Surface, Portal, Modal } from 'react-native-paper';
 import { TopicList } from '@/components/features/topic/TopicList';
-
-// Mock topics data for testing
-const MOCK_TOPICS = [
-  {
-    id: '1',
-    name: 'react',
-    displayName: 'React',
-    description: 'A JavaScript library for building user interfaces',
-    repositoryCount: 234567,
-    isFollowed: true,
-    createdAt: new Date('2013-05-24').toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '2',
-    name: 'typescript',
-    displayName: 'TypeScript',
-    description: 'TypeScript is a superset of JavaScript that compiles to JavaScript',
-    repositoryCount: 198765,
-    isFollowed: true,
-    createdAt: new Date('2014-06-17').toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '3',
-    name: 'python',
-    displayName: 'Python',
-    description: 'A high-level, interpreted programming language',
-    repositoryCount: 456789,
-    isFollowed: true,
-    createdAt: new Date('2008-01-01').toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '4',
-    name: 'machine-learning',
-    displayName: 'Machine Learning',
-    description: 'Artificial intelligence and machine learning repositories',
-    repositoryCount: 123456,
-    isFollowed: false,
-    createdAt: new Date('2010-01-01').toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '5',
-    name: 'web-development',
-    displayName: 'Web Development',
-    description: 'Web development tools, frameworks, and resources',
-    repositoryCount: 345678,
-    isFollowed: true,
-    createdAt: new Date('2005-01-01').toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-];
+import { useUserTopics, useFollowTopic, useUnfollowTopic } from '@/hooks/queries';
 
 export default function TopicsScreen() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [addTopicVisible, setAddTopicVisible] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [topics, setTopics] = useState(MOCK_TOPICS);
 
-  const isLoading = false;
-  const isError = false;
+  // Fetch user's followed topics from API
+  const { data, isLoading, isError, refetch, isFetching } = useUserTopics();
+
+  // Mutation hooks for follow/unfollow
+  const followMutation = useFollowTopic();
+  const unfollowMutation = useUnfollowTopic();
+
+  const topics = data || [];
+  const isRefreshing = isFetching;
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
@@ -76,30 +28,29 @@ export default function TopicsScreen() {
   };
 
   const handleRefresh = async () => {
-    setIsRefreshing(true);
-    // Simulate refresh
-    setTimeout(() => {
-      setIsRefreshing(false);
-    }, 1000);
+    await refetch();
   };
 
   const handleFollow = (topicId: string) => {
-    console.log('Follow topic:', topicId);
-    setTopics(topics.map(topic =>
-      topic.id === topicId ? { ...topic, isFollowed: true } : topic
-    ));
+    const topic = topics.find(t => t.id === topicId);
+    if (topic) {
+      followMutation.mutate({ topicName: topic.name });
+    }
   };
 
   const handleUnfollow = (topicId: string) => {
-    console.log('Unfollow topic:', topicId);
-    setTopics(topics.map(topic =>
-      topic.id === topicId ? { ...topic, isFollowed: false } : topic
-    ));
+    const topic = topics.find(t => t.id === topicId);
+    if (topic) {
+      unfollowMutation.mutate({ topicName: topic.name });
+    }
   };
 
   const handleDelete = (topicId: string) => {
-    console.log('Delete topic:', topicId);
-    setTopics(topics.filter(topic => topic.id !== topicId));
+    // Delete means unfollow in this context
+    const topic = topics.find(t => t.id === topicId);
+    if (topic) {
+      unfollowMutation.mutate({ topicName: topic.name });
+    }
   };
 
   const handleExploreTopics = () => {

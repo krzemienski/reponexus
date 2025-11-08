@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.db import get_db
 from app.core.rate_limit import rate_limit
+from app.dependencies import get_current_user, get_optional_current_user
+from app.models.user import User
 from app.services.search_service import SearchService
 from app.schemas.repository import RepositoryListResponse
 from app.schemas.topic import TopicListResponse
@@ -136,4 +138,34 @@ async def search_all(
         "topics": [TopicListResponse.model_validate(topic) for topic in results["topics"]],
         "users": [UserListResponse.model_validate(user) for user in results["users"]],
         "query": results["query"],
+    }
+
+
+@router.get("/suggestions")
+@rate_limit(requests=60, window=60)
+async def get_search_suggestions(
+    request: Request,
+    limit: int = Query(10, ge=1, le=50),
+    current_user: Optional[User] = Depends(get_optional_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Get search suggestions from history
+
+    Returns recent search queries from the user's search history.
+    Useful for autocomplete and quick search features.
+    Requires authentication.
+    """
+    service = SearchService(db)
+
+    user_id = current_user.id if current_user else None
+
+    suggestions = await service.get_search_suggestions(
+        user_id=user_id,
+        limit=limit,
+    )
+
+    return {
+        "suggestions": suggestions,
+        "count": len(suggestions),
     }

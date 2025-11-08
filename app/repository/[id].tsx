@@ -1,59 +1,91 @@
-import React, { useState } from 'react';
-import { View, ScrollView, Linking, Share } from 'react-native';
+import React from 'react';
+import { View, ScrollView, Linking, Share, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Text, Button, Surface, Card, Chip, Avatar, IconButton, Divider } from 'react-native-paper';
 import { LanguageTag } from '@/components/shared/LanguageTag';
+import { useRepository, useIsRepositoryStarred, useToggleRepositoryStar } from '@/hooks/queries';
 import type { Repository } from '@/types/models';
 
 export default function RepositoryDetailScreen() {
   const router = useRouter();
-  const { id } = useLocalSearchParams();
-  const [isStarred, setIsStarred] = useState(false);
+  const { id } = useLocalSearchParams<{ id: string }>();
 
-  // Mock repository data - in production, this would come from React Query
-  const repository: Repository = {
-    id: id as string,
-    githubId: '10270250',
-    nodeId: 'MDEwOlJlcG9zaXRvcnkxMDI3MDI1MA==',
-    nameWithOwner: 'facebook/react',
-    name: 'react',
-    ownerLogin: 'facebook',
-    description: 'A declarative, efficient, and flexible JavaScript library for building user interfaces.',
-    isPrivate: false,
-    isFork: false,
-    isArchived: false,
-    stargazerCount: 234000,
-    watcherCount: 6789,
-    forkCount: 45678,
-    openIssuesCount: 1234,
-    primaryLanguage: 'JavaScript',
-    languages: { JavaScript: 80, TypeScript: 15, CSS: 5 },
-    topics: ['javascript', 'react', 'frontend', 'ui', 'declarative'],
-    htmlUrl: 'https://github.com/facebook/react',
-    apiUrl: 'https://api.github.com/repos/facebook/react',
-    createdAt: new Date('2013-05-24').toISOString(),
-    updatedAt: new Date().toISOString(),
-    lastFetchedAt: new Date().toISOString(),
-  };
+  // Fetch repository data from API
+  const { data: repository, isLoading, isError, error } = useRepository(id);
+
+  // Check if repository is starred
+  const { data: isStarred = false } = useIsRepositoryStarred(id);
+
+  // Star/unstar mutation
+  const { toggle: toggleStar, isLoading: isTogglingstar } = useToggleRepositoryStar(id || '');
 
   const handleStar = () => {
-    setIsStarred(!isStarred);
+    if (id) {
+      toggleStar(isStarred);
+    }
   };
 
   const handleOpenInBrowser = () => {
-    Linking.openURL(repository.htmlUrl);
+    if (repository) {
+      Linking.openURL(repository.htmlUrl);
+    }
   };
 
   const handleShare = async () => {
-    try {
-      await Share.share({
-        message: `Check out ${repository.nameWithOwner} on GitHub: ${repository.htmlUrl}`,
-      });
-    } catch (error) {
-      console.error('Error sharing:', error);
+    if (repository) {
+      try {
+        await Share.share({
+          message: `Check out ${repository.nameWithOwner} on GitHub: ${repository.htmlUrl}`,
+        });
+      } catch (error) {
+        console.error('Error sharing:', error);
+      }
     }
   };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <SafeAreaView style={{ flex: 1 }}>
+        <Surface style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" />
+          <Text variant="bodyMedium" style={{ marginTop: 16, opacity: 0.7 }}>
+            Loading repository...
+          </Text>
+        </Surface>
+      </SafeAreaView>
+    );
+  }
+
+  // Error state
+  if (isError || !repository) {
+    return (
+      <SafeAreaView style={{ flex: 1 }}>
+        <Surface style={{ flex: 1 }}>
+          <View style={{ padding: 16 }}>
+            <IconButton
+              icon="arrow-left"
+              size={24}
+              onPress={() => router.back()}
+            />
+          </View>
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 }}>
+            <IconButton icon="alert-circle" size={48} iconColor="#ef4444" />
+            <Text variant="titleLarge" style={{ fontWeight: 'bold', marginTop: 16, textAlign: 'center' }}>
+              Failed to Load Repository
+            </Text>
+            <Text variant="bodyMedium" style={{ marginTop: 8, opacity: 0.7, textAlign: 'center' }}>
+              {error?.message || 'Unable to fetch repository data. Please try again.'}
+            </Text>
+            <Button mode="contained" onPress={() => router.back()} style={{ marginTop: 24 }}>
+              Go Back
+            </Button>
+          </View>
+        </Surface>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -191,6 +223,8 @@ export default function RepositoryDetailScreen() {
                 onPress={handleStar}
                 icon={isStarred ? 'star' : 'star-outline'}
                 style={{ flex: 1 }}
+                disabled={isTogglingstar}
+                loading={isTogglingstar}
               >
                 {isStarred ? 'Starred' : 'Star'}
               </Button>

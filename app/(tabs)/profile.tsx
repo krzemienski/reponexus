@@ -1,34 +1,17 @@
-import React, { useState } from 'react';
-import { View, ScrollView, Alert } from 'react-native';
+import React from 'react';
+import { View, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Text, Button, Surface, List, Avatar, Divider, IconButton } from 'react-native-paper';
 import { UserProfile } from '@/components/features/user/UserProfile';
+import { useCurrentUser } from '@/hooks/queries';
 import type { User } from '@/types/models';
 
 export default function ProfileScreen() {
   const router = useRouter();
 
-  // Mock user data - in production, this would come from auth store or React Query
-  const mockUser: User = {
-    id: '1',
-    githubId: '583231',
-    login: 'octocat',
-    name: 'The Octocat',
-    email: 'octocat@github.com',
-    avatarUrl: 'https://avatars.githubusercontent.com/u/583231?v=4',
-    bio: 'GitHub mascot and passionate developer',
-    company: '@GitHub',
-    location: 'San Francisco, CA',
-    blog: 'https://github.blog',
-    twitterUsername: 'github',
-    publicRepos: 42,
-    publicGists: 8,
-    followers: 1234,
-    following: 56,
-    createdAt: new Date('2008-01-14').toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
+  // Fetch current user data from API
+  const { data: user, isLoading, isError, error } = useCurrentUser();
 
   const handleStatsPress = (type: 'repos' | 'followers' | 'following') => {
     console.log('Navigate to:', type);
@@ -58,6 +41,40 @@ export default function ProfileScreen() {
     );
   };
 
+  // Loading state
+  if (isLoading) {
+    return (
+      <SafeAreaView style={{ flex: 1 }}>
+        <Surface style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" />
+          <Text variant="bodyMedium" style={{ marginTop: 16, opacity: 0.7 }}>
+            Loading profile...
+          </Text>
+        </Surface>
+      </SafeAreaView>
+    );
+  }
+
+  // Error state
+  if (isError || !user) {
+    return (
+      <SafeAreaView style={{ flex: 1 }}>
+        <Surface style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 }}>
+          <IconButton icon="alert-circle" size={48} iconColor="#ef4444" />
+          <Text variant="titleLarge" style={{ fontWeight: 'bold', marginTop: 16, textAlign: 'center' }}>
+            Failed to Load Profile
+          </Text>
+          <Text variant="bodyMedium" style={{ marginTop: 8, opacity: 0.7, textAlign: 'center' }}>
+            {error?.message || 'Unable to fetch user data. Please try again.'}
+          </Text>
+          <Button mode="contained" onPress={() => router.replace('/(auth)/login')} style={{ marginTop: 24 }}>
+            Sign In
+          </Button>
+        </Surface>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <Surface style={{ flex: 1 }}>
@@ -81,47 +98,47 @@ export default function ProfileScreen() {
             <View style={{ alignItems: 'center', marginBottom: 16 }}>
               <Avatar.Image
                 size={80}
-                source={{ uri: mockUser.avatarUrl }}
+                source={{ uri: user.avatarUrl }}
                 style={{ marginBottom: 12 }}
               />
               <Text variant="headlineSmall" style={{ fontWeight: 'bold' }}>
-                {mockUser.name}
+                {user.name}
               </Text>
               <Text variant="bodyMedium" style={{ opacity: 0.7, marginTop: 4 }}>
-                @{mockUser.login}
+                @{user.login}
               </Text>
             </View>
 
-            {mockUser.bio && (
+            {user.bio && (
               <Text variant="bodyMedium" style={{ textAlign: 'center', marginBottom: 16, opacity: 0.8 }}>
-                {mockUser.bio}
+                {user.bio}
               </Text>
             )}
 
             {/* User Info */}
             <View style={{ marginBottom: 16 }}>
-              {mockUser.company && (
+              {user.company && (
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
                   <IconButton icon="office-building" size={20} style={{ margin: 0, marginRight: 4 }} />
-                  <Text variant="bodyMedium">{mockUser.company}</Text>
+                  <Text variant="bodyMedium">{user.company}</Text>
                 </View>
               )}
-              {mockUser.location && (
+              {user.location && (
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
                   <IconButton icon="map-marker" size={20} style={{ margin: 0, marginRight: 4 }} />
-                  <Text variant="bodyMedium">{mockUser.location}</Text>
+                  <Text variant="bodyMedium">{user.location}</Text>
                 </View>
               )}
-              {mockUser.blog && (
+              {user.blog && (
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
                   <IconButton icon="link" size={20} style={{ margin: 0, marginRight: 4 }} />
-                  <Text variant="bodyMedium">{mockUser.blog}</Text>
+                  <Text variant="bodyMedium">{user.blog}</Text>
                 </View>
               )}
-              {mockUser.twitterUsername && (
+              {user.twitterUsername && (
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <IconButton icon="twitter" size={20} style={{ margin: 0, marginRight: 4 }} />
-                  <Text variant="bodyMedium">@{mockUser.twitterUsername}</Text>
+                  <Text variant="bodyMedium">@{user.twitterUsername}</Text>
                 </View>
               )}
             </View>
@@ -132,7 +149,7 @@ export default function ProfileScreen() {
             <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
               <View style={{ alignItems: 'center' }}>
                 <Text variant="headlineSmall" style={{ fontWeight: 'bold' }}>
-                  {mockUser.publicRepos}
+                  {user.publicRepos}
                 </Text>
                 <Text variant="bodySmall" style={{ opacity: 0.7 }}>
                   Repositories
@@ -140,7 +157,7 @@ export default function ProfileScreen() {
               </View>
               <View style={{ alignItems: 'center' }}>
                 <Text variant="headlineSmall" style={{ fontWeight: 'bold' }}>
-                  {mockUser.followers.toLocaleString()}
+                  {user.followers.toLocaleString()}
                 </Text>
                 <Text variant="bodySmall" style={{ opacity: 0.7 }}>
                   Followers
@@ -148,7 +165,7 @@ export default function ProfileScreen() {
               </View>
               <View style={{ alignItems: 'center' }}>
                 <Text variant="headlineSmall" style={{ fontWeight: 'bold' }}>
-                  {mockUser.following}
+                  {user.following}
                 </Text>
                 <Text variant="bodySmall" style={{ opacity: 0.7 }}>
                   Following

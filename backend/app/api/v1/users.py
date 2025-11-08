@@ -1,12 +1,13 @@
 from fastapi import APIRouter, Depends, Query, HTTPException, status, Request
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy import select, func, desc
 from app.core.db import get_db
 from app.core.rate_limit import rate_limit
 from app.dependencies import get_current_user
 from app.models.user import User
 from app.models.starred_repository import StarredRepository
 from app.models.repository import Repository
+from app.models.analytics import AnalyticsEvent
 from app.services.topic_service import TopicService
 from app.schemas.user import (
     UserProfileResponse,
@@ -16,7 +17,7 @@ from app.schemas.user import (
 from app.schemas.repository import RepositoryListResponse
 from app.schemas.topic import TopicListResponse
 from app.schemas.common import PaginatedResponse, PaginationMetadata
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 
 router = APIRouter()
 
@@ -172,6 +173,73 @@ async def get_user_topics(
     topics = await service.get_user_topics(current_user.id)
 
     return [TopicListResponse.model_validate(topic) for topic in topics]
+
+
+@router.get("/me/activity", response_model=PaginatedResponse[Dict[str, Any]])
+@rate_limit(requests=60, window=60)
+async def get_user_activity(
+    request: Request,
+    page: int = Query(1, ge=1),
+    per_page: int = Query(20, ge=1, le=100),
+    event_type: Optional[str] = Query(None, description="Filter by event type"),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Get user activity feed
+
+    Returns a paginated list of recent activities for the authenticated user.
+    Activities include stars, searches, views, and other tracked events.
+    """
+    # Build query
+    query = select(AnalyticsEvent).where(AnalyticsEvent.user_id == current_user.id)
+
+    if event_type:
+        query = query.where(AnalyticsEvent.event_type == event_type)
+
+    query = query.order_by(desc(AnalyticsEvent.created_at))
+
+    # Get total count
+    count_query = select(func.count()).select_from(AnalyticsEvent).where(
+        AnalyticsEvent.user_id == current_user.id
+    )
+    if event_type:
+        count_query = count_query.where(AnalyticsEvent.event_type == event_type)
+
+    result = await db.execute(count_query)
+    total = result.scalar() or 0
+
+    # Apply pagination
+    offset = (page - 1) * per_page
+    query = query.offset(offset).limit(per_page)
+
+    # Execute query
+    result = await db.execute(query)
+    events = list(result.scalars().all())
+
+    # Format events for response
+    activity_data = []
+    for event in events:
+        activity_data.append({
+            "id": str(event.id),
+            "event_type": event.event_type,
+            "entity_type": event.entity_type,
+            "entity_id": event.entity_id,
+            "metadata": event.event_metadata,
+            "created_at": event.created_at,
+        })
+
+    pages = (total + per_page - 1) // per_page
+
+    return PaginatedResponse(
+        data=activity_data,
+        pagination=PaginationMetadata(
+            total=total,
+            page=page,
+            per_page=per_page,
+            pages=pages,
+        ),
+    )
 
 
 @router.get("/{login}", response_model=UserListResponse)

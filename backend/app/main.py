@@ -5,11 +5,12 @@ from contextlib import asynccontextmanager
 
 from app.core.config import settings
 from app.core.db import engine, Base
-from app.api.v1 import auth, repositories, topics, users, search, webhooks, analytics
+from app.api.v1 import auth, repositories, topics, users, search, webhooks, analytics, notifications
+from app.api.v1 import settings as settings_router
 from app.middleware.security import SecurityHeadersMiddleware, RequestIDMiddleware
 
 # Import models to ensure they are registered with SQLAlchemy
-from app.models import user, repository, topic, audit_log, starred_repository, analytics as analytics_models  # noqa
+from app.models import user, repository, topic, audit_log, starred_repository, analytics as analytics_models, notification, settings as settings_model, search_history  # noqa
 
 
 @asynccontextmanager
@@ -95,6 +96,8 @@ app.include_router(users.router, prefix=f"{settings.API_V1_PREFIX}/users", tags=
 app.include_router(search.router, prefix=f"{settings.API_V1_PREFIX}/search", tags=["search"])
 app.include_router(analytics.router, prefix=f"{settings.API_V1_PREFIX}/analytics", tags=["analytics"])
 app.include_router(webhooks.router, prefix=settings.API_V1_PREFIX, tags=["webhooks"])
+app.include_router(notifications.router, prefix=f"{settings.API_V1_PREFIX}/notifications", tags=["notifications"])
+app.include_router(settings_router.router, prefix=f"{settings.API_V1_PREFIX}/settings", tags=["settings"])
 
 if __name__ == "__main__":
     import uvicorn

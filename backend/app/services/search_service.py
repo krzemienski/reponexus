@@ -228,3 +228,60 @@ class SearchService:
         # This would typically query analytics_events for trending searches
         # For now, return empty list
         return []
+
+    async def get_search_suggestions(
+        self, user_id: Optional[UUID] = None, limit: int = 10
+    ) -> List[Dict[str, Any]]:
+        """Get search suggestions from user's search history"""
+        from app.models.search_history import SearchHistory
+
+        if not user_id:
+            return []
+
+        # Get recent unique searches for the user
+        query = (
+            select(SearchHistory.query, SearchHistory.result_type, func.count().label('count'))
+            .where(SearchHistory.user_id == user_id)
+            .group_by(SearchHistory.query, SearchHistory.result_type)
+            .order_by(desc(func.max(SearchHistory.created_at)))
+            .limit(limit)
+        )
+
+        result = await self.db.execute(query)
+        suggestions = []
+
+        for row in result:
+            suggestions.append({
+                "query": row.query,
+                "type": row.result_type,
+                "count": row.count,
+            })
+
+        return suggestions
+
+    async def save_search_history(
+        self,
+        query: str,
+        result_type: str,
+        result_count: int,
+        user_id: Optional[UUID] = None,
+    ) -> None:
+        """Save search query to history"""
+        from app.models.search_history import SearchHistory, SearchResultType
+
+        # Convert string to enum
+        try:
+            result_type_enum = SearchResultType(result_type)
+        except ValueError:
+            # Invalid result type, skip saving
+            return
+
+        search_entry = SearchHistory(
+            user_id=user_id,
+            query=query,
+            result_type=result_type_enum,
+            result_count=result_count,
+        )
+
+        self.db.add(search_entry)
+        await self.db.commit()

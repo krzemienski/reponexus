@@ -13,7 +13,7 @@ from app.workers.celery import celery_app
 from app.services.github_service import get_github_service
 from app.services.github_graphql import get_github_graphql_client
 from app.services.cache_service import get_cache_service
-from app.core.db import async_session_maker
+from app.core.db import AsyncSessionLocal
 from app.models.repository import Repository
 
 logger = logging.getLogger(__name__)
@@ -81,7 +81,7 @@ async def _sync_repository_async(owner: str, name: str) -> Dict[str, Any]:
         }
 
         # Upsert to database
-        async with async_session_maker() as session:
+        async with AsyncSessionLocal() as session:
             stmt = insert(Repository).values(**db_data)
             stmt = stmt.on_conflict_do_update(
                 index_elements=["github_id"],
@@ -197,7 +197,7 @@ async def _sync_all_repositories_async(limit: int) -> Dict[str, Any]:
         synced_count = 0
 
         # Get repositories from database
-        async with async_session_maker() as session:
+        async with AsyncSessionLocal() as session:
             # Order by last_fetched_at to prioritize stale data
             stmt = select(Repository).order_by(Repository.last_fetched_at).limit(limit)
             result = await session.execute(stmt)
@@ -311,7 +311,7 @@ async def _update_repository_stats_async(
 ) -> Dict[str, Any]:
     """Async implementation of repository stats update"""
     try:
-        async with async_session_maker() as session:
+        async with AsyncSessionLocal() as session:
             # Find repository
             stmt = select(Repository).where(
                 Repository.owner_login == owner,

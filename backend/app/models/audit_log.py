@@ -36,7 +36,7 @@ class AuditLog(Base):
     request_path = Column(String, nullable=True)
 
     # Additional Data
-    metadata = Column(JSON, nullable=True)  # Store additional event-specific data
+    event_metadata = Column(JSON, nullable=True)  # Store additional event-specific data
 
     # Timestamp
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)

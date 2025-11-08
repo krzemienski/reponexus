@@ -2,10 +2,7 @@ import React, { useState } from 'react';
 import { View, ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import { Text } from '@/components/ui/Text';
-import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
+import { Text, Button, Surface, List, Avatar, Divider, IconButton } from 'react-native-paper';
 import { UserProfile } from '@/components/features/user/UserProfile';
 import type { User } from '@/types/models';
 
@@ -15,7 +12,7 @@ export default function ProfileScreen() {
   // Mock user data - in production, this would come from auth store or React Query
   const mockUser: User = {
     id: '1',
-    githubId: '123456',
+    githubId: '583231',
     login: 'octocat',
     name: 'The Octocat',
     email: 'octocat@github.com',
@@ -29,7 +26,7 @@ export default function ProfileScreen() {
     publicGists: 8,
     followers: 1234,
     following: 56,
-    createdAt: new Date().toISOString(),
+    createdAt: new Date('2008-01-14').toISOString(),
     updatedAt: new Date().toISOString(),
   };
 
@@ -62,94 +59,145 @@ export default function ProfileScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-dark-50">
-      <ScrollView className="flex-1">
-        {/* Header */}
-        <View className="px-4 pt-4 pb-2">
-          <View className="flex-row items-center justify-between mb-4">
-            <Text variant="heading" weight="bold">
-              Profile
-            </Text>
-            <Button
-              variant="ghost"
-              size="sm"
-              onPress={handleSettings}
-            >
-              <Ionicons name="settings-outline" size={24} color="#ffffff" />
-            </Button>
+    <SafeAreaView style={{ flex: 1 }}>
+      <Surface style={{ flex: 1 }}>
+        <ScrollView style={{ flex: 1 }}>
+          {/* Header */}
+          <View style={{ padding: 16, paddingTop: 16, paddingBottom: 8 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+              <Text variant="headlineMedium" style={{ fontWeight: 'bold' }}>
+                Profile
+              </Text>
+              <IconButton
+                icon="cog-outline"
+                size={24}
+                onPress={handleSettings}
+              />
+            </View>
           </View>
-        </View>
 
-        {/* User Profile */}
-        <View className="px-4">
-          <UserProfile user={mockUser} onStatsPress={handleStatsPress} />
-        </View>
-
-        {/* Settings Options */}
-        <View className="px-4 mt-4 space-y-3">
-          <Card variant="elevated" pressable onPress={handleSettings}>
-            <View className="flex-row items-center justify-between">
-              <View className="flex-row items-center">
-                <View className="w-10 h-10 rounded-full bg-primary-600/20 items-center justify-center mr-3">
-                  <Ionicons name="settings-outline" size={20} color="#0284c7" />
-                </View>
-                <Text variant="body" weight="medium">
-                  Settings
-                </Text>
-              </View>
-              <Ionicons name="chevron-forward" size={20} color="#71717a" />
-            </View>
-          </Card>
-
-          <Card
-            variant="elevated"
-            pressable
-            onPress={() => console.log('Navigate to starred repositories')}
-          >
-            <View className="flex-row items-center justify-between">
-              <View className="flex-row items-center">
-                <View className="w-10 h-10 rounded-full bg-yellow-500/20 items-center justify-center mr-3">
-                  <Ionicons name="star" size={20} color="#fbbf24" />
-                </View>
-                <Text variant="body" weight="medium">
-                  Starred Repositories
-                </Text>
-              </View>
-              <Ionicons name="chevron-forward" size={20} color="#71717a" />
-            </View>
-          </Card>
-
-          <Card
-            variant="elevated"
-            pressable
-            onPress={() => console.log('Navigate to notifications')}
-          >
-            <View className="flex-row items-center justify-between">
-              <View className="flex-row items-center">
-                <View className="w-10 h-10 rounded-full bg-secondary-600/20 items-center justify-center mr-3">
-                  <Ionicons name="notifications-outline" size={20} color="#d946ef" />
-                </View>
-                <Text variant="body" weight="medium">
-                  Notifications
-                </Text>
-              </View>
-              <Ionicons name="chevron-forward" size={20} color="#71717a" />
-            </View>
-          </Card>
-        </View>
-
-        {/* Sign Out Button */}
-        <View className="px-4 mt-6 mb-8">
-          <Button variant="outline" onPress={handleSignOut}>
-            <View className="flex-row items-center">
-              <Ionicons name="log-out-outline" size={20} color="#ef4444" />
-              <Text color="error" weight="semibold" className="ml-2">
-                Sign Out
+          {/* User Profile Card */}
+          <Surface style={{ margin: 16, borderRadius: 12, elevation: 2, padding: 16 }}>
+            <View style={{ alignItems: 'center', marginBottom: 16 }}>
+              <Avatar.Image
+                size={80}
+                source={{ uri: mockUser.avatarUrl }}
+                style={{ marginBottom: 12 }}
+              />
+              <Text variant="headlineSmall" style={{ fontWeight: 'bold' }}>
+                {mockUser.name}
+              </Text>
+              <Text variant="bodyMedium" style={{ opacity: 0.7, marginTop: 4 }}>
+                @{mockUser.login}
               </Text>
             </View>
-          </Button>
-        </View>
-      </ScrollView>
+
+            {mockUser.bio && (
+              <Text variant="bodyMedium" style={{ textAlign: 'center', marginBottom: 16, opacity: 0.8 }}>
+                {mockUser.bio}
+              </Text>
+            )}
+
+            {/* User Info */}
+            <View style={{ marginBottom: 16 }}>
+              {mockUser.company && (
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                  <IconButton icon="office-building" size={20} style={{ margin: 0, marginRight: 4 }} />
+                  <Text variant="bodyMedium">{mockUser.company}</Text>
+                </View>
+              )}
+              {mockUser.location && (
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                  <IconButton icon="map-marker" size={20} style={{ margin: 0, marginRight: 4 }} />
+                  <Text variant="bodyMedium">{mockUser.location}</Text>
+                </View>
+              )}
+              {mockUser.blog && (
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                  <IconButton icon="link" size={20} style={{ margin: 0, marginRight: 4 }} />
+                  <Text variant="bodyMedium">{mockUser.blog}</Text>
+                </View>
+              )}
+              {mockUser.twitterUsername && (
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <IconButton icon="twitter" size={20} style={{ margin: 0, marginRight: 4 }} />
+                  <Text variant="bodyMedium">@{mockUser.twitterUsername}</Text>
+                </View>
+              )}
+            </View>
+
+            <Divider style={{ marginVertical: 12 }} />
+
+            {/* Stats */}
+            <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
+              <View style={{ alignItems: 'center' }}>
+                <Text variant="headlineSmall" style={{ fontWeight: 'bold' }}>
+                  {mockUser.publicRepos}
+                </Text>
+                <Text variant="bodySmall" style={{ opacity: 0.7 }}>
+                  Repositories
+                </Text>
+              </View>
+              <View style={{ alignItems: 'center' }}>
+                <Text variant="headlineSmall" style={{ fontWeight: 'bold' }}>
+                  {mockUser.followers.toLocaleString()}
+                </Text>
+                <Text variant="bodySmall" style={{ opacity: 0.7 }}>
+                  Followers
+                </Text>
+              </View>
+              <View style={{ alignItems: 'center' }}>
+                <Text variant="headlineSmall" style={{ fontWeight: 'bold' }}>
+                  {mockUser.following}
+                </Text>
+                <Text variant="bodySmall" style={{ opacity: 0.7 }}>
+                  Following
+                </Text>
+              </View>
+            </View>
+          </Surface>
+
+          {/* Settings Options */}
+          <View style={{ marginHorizontal: 16, marginTop: 8 }}>
+            <List.Item
+              title="Settings"
+              description="Manage app preferences"
+              left={props => <List.Icon {...props} icon="cog" />}
+              right={props => <List.Icon {...props} icon="chevron-right" />}
+              onPress={handleSettings}
+            />
+            <Divider />
+            <List.Item
+              title="Starred Repositories"
+              description="View your starred repos"
+              left={props => <List.Icon {...props} icon="star" />}
+              right={props => <List.Icon {...props} icon="chevron-right" />}
+              onPress={() => console.log('Navigate to starred repositories')}
+            />
+            <Divider />
+            <List.Item
+              title="Notifications"
+              description="Manage notifications"
+              left={props => <List.Icon {...props} icon="bell-outline" />}
+              right={props => <List.Icon {...props} icon="chevron-right" />}
+              onPress={() => console.log('Navigate to notifications')}
+            />
+          </View>
+
+          {/* Sign Out Button */}
+          <View style={{ padding: 16, marginTop: 8, marginBottom: 32 }}>
+            <Button
+              mode="outlined"
+              onPress={handleSignOut}
+              icon="logout"
+              style={{ borderColor: '#ef4444' }}
+              textColor="#ef4444"
+            >
+              Sign Out
+            </Button>
+          </View>
+        </ScrollView>
+      </Surface>
     </SafeAreaView>
   );
 }

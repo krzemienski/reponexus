@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { View, Text, ActivityIndicator } from 'react-native';
+import { View } from 'react-native';
+import { Text, ActivityIndicator, Surface } from 'react-native-paper';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as AuthSession from 'expo-auth-session';
 import * as Haptics from 'expo-haptics';
@@ -115,22 +116,22 @@ export default function CallbackScreen() {
   }, [params, router, handleCallback]);
 
   return (
-    <View className="flex-1 bg-dark-50 items-center justify-center px-6">
+    <Surface style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 }}>
       {/* Loading Indicator */}
-      <ActivityIndicator size="large" color="#0ea5e9" />
+      <ActivityIndicator size="large" />
 
       {/* Status Message */}
-      <Text className="text-white text-lg mt-4 text-center">
+      <Text variant="titleMedium" style={{ marginTop: 16, textAlign: 'center' }}>
         {statusMessage}
       </Text>
 
       {/* Additional info for errors */}
       {statusMessage.toLowerCase().includes('error') ||
        statusMessage.toLowerCase().includes('failed') ? (
-        <Text className="text-dark-500 text-sm mt-2 text-center">
+        <Text variant="bodySmall" style={{ marginTop: 8, textAlign: 'center', opacity: 0.6 }}>
           Redirecting to login...
         </Text>
       ) : null}
-    </View>
+    </Surface>
   );
 }

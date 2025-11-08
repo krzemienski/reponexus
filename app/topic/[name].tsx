@@ -1,13 +1,61 @@
 import React, { useState } from 'react';
-import { View, Pressable } from 'react-native';
+import { View, ScrollView, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import { Text } from '@/components/ui/Text';
-import { Card } from '@/components/ui/Card';
-import { Chip } from '@/components/ui/Chip';
+import { Text, Button, Surface, Card, Chip, IconButton, Avatar } from 'react-native-paper';
 import { RepositoryList } from '@/components/features/repository/RepositoryList';
-import { FollowButton } from '@/components/shared/FollowButton';
+
+// Mock repositories for the topic
+const MOCK_TOPIC_REPOS = [
+  {
+    id: '1',
+    githubId: '10270250',
+    nodeId: 'MDEwOlJlcG9zaXRvcnkxMDI3MDI1MA==',
+    nameWithOwner: 'facebook/react',
+    name: 'react',
+    ownerLogin: 'facebook',
+    description: 'A declarative, efficient, and flexible JavaScript library for building user interfaces.',
+    isPrivate: false,
+    isFork: false,
+    isArchived: false,
+    stargazerCount: 234000,
+    watcherCount: 6789,
+    forkCount: 45678,
+    openIssuesCount: 1234,
+    primaryLanguage: 'JavaScript',
+    languages: { JavaScript: 80, TypeScript: 15, CSS: 5 },
+    topics: ['javascript', 'react', 'frontend', 'ui', 'declarative'],
+    htmlUrl: 'https://github.com/facebook/react',
+    apiUrl: 'https://api.github.com/repos/facebook/react',
+    createdAt: new Date('2013-05-24').toISOString(),
+    updatedAt: new Date().toISOString(),
+    lastFetchedAt: new Date().toISOString(),
+  },
+  {
+    id: '2',
+    githubId: '22514524',
+    nodeId: 'MDEwOlJlcG9zaXRvcnkyMjUxNDUyNA==',
+    nameWithOwner: 'vercel/next.js',
+    name: 'next.js',
+    ownerLogin: 'vercel',
+    description: 'The React Framework for Production',
+    isPrivate: false,
+    isFork: false,
+    isArchived: false,
+    stargazerCount: 134000,
+    watcherCount: 1900,
+    forkCount: 27000,
+    openIssuesCount: 2456,
+    primaryLanguage: 'JavaScript',
+    languages: { JavaScript: 70, TypeScript: 28, CSS: 2 },
+    topics: ['react', 'nextjs', 'framework', 'ssr', 'static-site'],
+    htmlUrl: 'https://github.com/vercel/next.js',
+    apiUrl: 'https://api.github.com/repos/vercel/next.js',
+    createdAt: new Date('2016-10-05').toISOString(),
+    updatedAt: new Date().toISOString(),
+    lastFetchedAt: new Date().toISOString(),
+  },
+];
 
 export default function TopicDetailScreen() {
   const router = useRouter();
@@ -24,7 +72,7 @@ export default function TopicDetailScreen() {
     relatedTopics: ['javascript', 'typescript', 'frontend', 'web'],
   };
 
-  const repositories: any[] = [];
+  const repositories = MOCK_TOPIC_REPOS;
   const isLoading = false;
   const isError = false;
 
@@ -45,90 +93,107 @@ export default function TopicDetailScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-dark-50">
-      <View className="flex-1">
+    <SafeAreaView style={{ flex: 1 }}>
+      <Surface style={{ flex: 1 }}>
         {/* Header */}
-        <View className="px-4 py-4 flex-row items-center justify-between border-b border-dark-200">
-          <Pressable onPress={() => router.back()} hitSlop={8}>
-            <Ionicons name="arrow-back" size={24} color="#ffffff" />
-          </Pressable>
+        <View style={{ padding: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          <IconButton
+            icon="arrow-left"
+            size={24}
+            onPress={() => router.back()}
+          />
         </View>
 
         {/* Topic Header */}
-        <View className="px-4 py-6 space-y-4">
-          <View className="items-center">
-            <View className="w-20 h-20 rounded-full bg-primary-600/20 items-center justify-center mb-4">
-              <Text variant="heading">
-                {topic.displayName.charAt(0).toUpperCase()}
-              </Text>
-            </View>
+        <View style={{ padding: 16, paddingTop: 0, gap: 16 }}>
+          <View style={{ alignItems: 'center' }}>
+            <Avatar.Text
+              size={80}
+              label={topic.displayName.charAt(0).toUpperCase()}
+              style={{ marginBottom: 12 }}
+            />
 
-            <Text variant="heading" weight="bold" className="mb-2">
+            <Text variant="headlineMedium" style={{ fontWeight: 'bold', marginBottom: 4 }}>
               {topic.displayName}
             </Text>
 
-            <View className="flex-row items-center mb-4">
-              <Ionicons name="git-branch" size={16} color="#71717a" />
-              <Text color="gray" variant="caption" className="ml-1">
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+              <IconButton icon="source-fork" size={16} style={{ margin: 0 }} />
+              <Text variant="labelMedium" style={{ opacity: 0.7 }}>
                 {topic.repositoryCount.toLocaleString()} repositories
               </Text>
             </View>
 
             {topic.description && (
-              <Text color="gray" variant="body" className="text-center mb-4">
+              <Text variant="bodyMedium" style={{ textAlign: 'center', marginBottom: 12, opacity: 0.8 }}>
                 {topic.description}
               </Text>
             )}
 
-            <View className="w-48">
-              <FollowButton
-                isFollowing={isFollowing}
-                onPress={handleFollow}
-                size="md"
-              />
-            </View>
+            <Button
+              mode={isFollowing ? 'outlined' : 'contained'}
+              onPress={handleFollow}
+              icon={isFollowing ? 'check' : 'plus'}
+              style={{ minWidth: 192 }}
+            >
+              {isFollowing ? 'Following' : 'Follow'}
+            </Button>
           </View>
 
           {/* Related Topics */}
           {topic.relatedTopics && topic.relatedTopics.length > 0 && (
-            <Card variant="flat">
-              <Text variant="body" weight="medium" className="mb-3">
-                Related Topics
-              </Text>
-              <View className="flex-row flex-wrap gap-2">
-                {topic.relatedTopics.map((relatedTopic) => (
-                  <Chip
-                    key={relatedTopic}
-                    label={relatedTopic}
-                    icon="pricetag"
-                    onPress={() => handleRelatedTopicPress(relatedTopic)}
-                  />
-                ))}
-              </View>
+            <Card mode="contained">
+              <Card.Content>
+                <Text variant="bodyMedium" style={{ fontWeight: '600', marginBottom: 12 }}>
+                  Related Topics
+                </Text>
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                  {topic.relatedTopics.map((relatedTopic) => (
+                    <Chip
+                      key={relatedTopic}
+                      icon="tag"
+                      onPress={() => handleRelatedTopicPress(relatedTopic)}
+                      mode="outlined"
+                    >
+                      {relatedTopic}
+                    </Chip>
+                  ))}
+                </View>
+              </Card.Content>
             </Card>
           )}
         </View>
 
         {/* Repository List */}
-        <View className="flex-1 border-t border-dark-200">
-          <View className="px-4 py-3">
-            <Text variant="body" weight="semibold">
+        <View style={{ flex: 1, paddingTop: 8 }}>
+          <View style={{ paddingHorizontal: 16, paddingVertical: 12 }}>
+            <Text variant="titleMedium" style={{ fontWeight: '600' }}>
               Popular Repositories
             </Text>
           </View>
 
-          <RepositoryList
-            repositories={repositories}
-            isLoading={isLoading}
-            isError={isError}
-            isRefreshing={isRefreshing}
-            onRefresh={handleRefresh}
-            isEmpty={repositories.length === 0}
-            emptyTitle="No repositories found"
-            emptyMessage={`No repositories found for the ${topic.displayName} topic.`}
-          />
+          <ScrollView
+            style={{ flex: 1 }}
+            refreshControl={
+              <RefreshControl
+                refreshing={isRefreshing}
+                onRefresh={handleRefresh}
+              />
+            }
+          >
+            <RepositoryList
+              repositories={repositories}
+              isLoading={isLoading}
+              isError={isError}
+              isRefreshing={isRefreshing}
+              onRefresh={handleRefresh}
+              isEmpty={repositories.length === 0}
+              emptyTitle="No repositories found"
+              emptyMessage={`No repositories found for the ${topic.displayName} topic.`}
+            />
+          </ScrollView>
         </View>
-      </View>
+      </Surface>
     </SafeAreaView>
   );
 }

@@ -26,7 +26,7 @@ class AnalyticsEvent(Base):
     entity_id = Column(String, nullable=True)  # UUID or identifier of entity
 
     # Event Metadata
-    metadata = Column(JSON, default=dict)  # Additional event-specific data
+    event_metadata = Column(JSON, default=dict)  # Additional event-specific data
 
     # Request Info
     ip_address = Column(String, nullable=True)

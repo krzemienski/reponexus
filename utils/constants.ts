@@ -1,8 +1,9 @@
+import { getApiUrl, getWsUrl } from './apiConfig';
 import Constants from 'expo-constants';
 
 // API Configuration
-export const API_URL = Constants.expoConfig?.extra?.EXPO_PUBLIC_API_URL || 'http://localhost:8000';
-export const WS_URL = Constants.expoConfig?.extra?.EXPO_PUBLIC_WS_URL || 'ws://localhost:8000';
+export const API_URL = getApiUrl();
+export const WS_URL = getWsUrl();
 export const GITHUB_CLIENT_ID = Constants.expoConfig?.extra?.EXPO_PUBLIC_GITHUB_CLIENT_ID || '';
 
 // OAuth Configuration

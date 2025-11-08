@@ -1,15 +1,8 @@
 import React, { useState } from 'react';
-import { View, ScrollView, Pressable, Linking, Share } from 'react-native';
+import { View, ScrollView, Linking, Share } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import { Text } from '@/components/ui/Text';
-import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
-import { Chip } from '@/components/ui/Chip';
-import { Avatar } from '@/components/ui/Avatar';
-import { StarButton } from '@/components/shared/StarButton';
+import { Text, Button, Surface, Card, Chip, Avatar, IconButton, Divider } from 'react-native-paper';
 import { LanguageTag } from '@/components/shared/LanguageTag';
 import type { Repository } from '@/types/models';
 
@@ -21,8 +14,8 @@ export default function RepositoryDetailScreen() {
   // Mock repository data - in production, this would come from React Query
   const repository: Repository = {
     id: id as string,
-    githubId: '123',
-    nodeId: 'node123',
+    githubId: '10270250',
+    nodeId: 'MDEwOlJlcG9zaXRvcnkxMDI3MDI1MA==',
     nameWithOwner: 'facebook/react',
     name: 'react',
     ownerLogin: 'facebook',
@@ -63,38 +56,42 @@ export default function RepositoryDetailScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-dark-50">
-      <View className="flex-1">
+    <SafeAreaView style={{ flex: 1 }}>
+      <Surface style={{ flex: 1 }}>
         {/* Header */}
-        <View className="px-4 py-4 flex-row items-center justify-between border-b border-dark-200">
-          <Pressable onPress={() => router.back()} hitSlop={8}>
-            <Ionicons name="arrow-back" size={24} color="#ffffff" />
-          </Pressable>
-
-          <View className="flex-row space-x-3">
-            <Pressable onPress={handleShare} hitSlop={8}>
-              <Ionicons name="share-outline" size={24} color="#ffffff" />
-            </Pressable>
-            <Pressable onPress={handleOpenInBrowser} hitSlop={8}>
-              <Ionicons name="open-outline" size={24} color="#ffffff" />
-            </Pressable>
+        <View style={{ padding: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          <IconButton
+            icon="arrow-left"
+            size={24}
+            onPress={() => router.back()}
+          />
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <IconButton
+              icon="share-variant"
+              size={24}
+              onPress={handleShare}
+            />
+            <IconButton
+              icon="open-in-new"
+              size={24}
+              onPress={handleOpenInBrowser}
+            />
           </View>
         </View>
 
-        <ScrollView className="flex-1">
-          <View className="px-4 py-6 space-y-4">
+        <ScrollView style={{ flex: 1 }}>
+          <View style={{ padding: 16, gap: 16 }}>
             {/* Owner Avatar and Name */}
-            <View className="flex-row items-center space-x-3">
-              <Avatar
-                source={`https://github.com/${repository.ownerLogin}.png`}
-                name={repository.ownerLogin}
-                size="md"
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <Avatar.Image
+                source={{ uri: `https://github.com/${repository.ownerLogin}.png` }}
+                size={48}
               />
-              <View className="flex-1">
-                <Text variant="caption" color="gray">
+              <View style={{ flex: 1 }}>
+                <Text variant="labelMedium" style={{ opacity: 0.7 }}>
                   {repository.ownerLogin}
                 </Text>
-                <Text variant="title" weight="bold">
+                <Text variant="titleLarge" style={{ fontWeight: 'bold' }}>
                   {repository.name}
                 </Text>
               </View>
@@ -102,123 +99,128 @@ export default function RepositoryDetailScreen() {
 
             {/* Description */}
             {repository.description && (
-              <Card variant="flat">
-                <Text variant="body" color="gray">
-                  {repository.description}
-                </Text>
+              <Card mode="contained">
+                <Card.Content>
+                  <Text variant="bodyMedium" style={{ opacity: 0.8 }}>
+                    {repository.description}
+                  </Text>
+                </Card.Content>
               </Card>
             )}
 
             {/* Stats Grid */}
-            <View className="flex-row space-x-2">
-              <Card variant="elevated" style={{ flex: 1 }}>
-                <View className="items-center">
-                  <Ionicons name="star" size={24} color="#fbbf24" />
-                  <Text variant="title" weight="bold" className="mt-2">
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              <Card mode="contained" style={{ flex: 1 }}>
+                <Card.Content style={{ alignItems: 'center' }}>
+                  <IconButton icon="star" size={28} iconColor="#fbbf24" style={{ margin: 0 }} />
+                  <Text variant="titleMedium" style={{ fontWeight: 'bold', marginTop: 4 }}>
                     {repository.stargazerCount.toLocaleString()}
                   </Text>
-                  <Text variant="caption" color="gray">
+                  <Text variant="labelSmall" style={{ opacity: 0.7 }}>
                     Stars
                   </Text>
-                </View>
+                </Card.Content>
               </Card>
 
-              <Card variant="elevated" style={{ flex: 1 }}>
-                <View className="items-center">
-                  <Ionicons name="git-branch" size={24} color="#0284c7" />
-                  <Text variant="title" weight="bold" className="mt-2">
+              <Card mode="contained" style={{ flex: 1 }}>
+                <Card.Content style={{ alignItems: 'center' }}>
+                  <IconButton icon="source-fork" size={28} iconColor="#0ea5e9" style={{ margin: 0 }} />
+                  <Text variant="titleMedium" style={{ fontWeight: 'bold', marginTop: 4 }}>
                     {repository.forkCount.toLocaleString()}
                   </Text>
-                  <Text variant="caption" color="gray">
+                  <Text variant="labelSmall" style={{ opacity: 0.7 }}>
                     Forks
                   </Text>
-                </View>
+                </Card.Content>
               </Card>
 
-              <Card variant="elevated" style={{ flex: 1 }}>
-                <View className="items-center">
-                  <Ionicons name="alert-circle" size={24} color="#ef4444" />
-                  <Text variant="title" weight="bold" className="mt-2">
+              <Card mode="contained" style={{ flex: 1 }}>
+                <Card.Content style={{ alignItems: 'center' }}>
+                  <IconButton icon="alert-circle" size={28} iconColor="#ef4444" style={{ margin: 0 }} />
+                  <Text variant="titleMedium" style={{ fontWeight: 'bold', marginTop: 4 }}>
                     {repository.openIssuesCount.toLocaleString()}
                   </Text>
-                  <Text variant="caption" color="gray">
+                  <Text variant="labelSmall" style={{ opacity: 0.7 }}>
                     Issues
                   </Text>
-                </View>
+                </Card.Content>
               </Card>
             </View>
 
             {/* Language */}
             {repository.primaryLanguage && (
-              <Card variant="flat">
-                <View className="flex-row items-center justify-between">
-                  <Text variant="body" weight="medium">
-                    Primary Language
-                  </Text>
-                  <LanguageTag language={repository.primaryLanguage} />
-                </View>
+              <Card mode="contained">
+                <Card.Content>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <Text variant="bodyMedium" style={{ fontWeight: '600' }}>
+                      Primary Language
+                    </Text>
+                    <LanguageTag language={repository.primaryLanguage} />
+                  </View>
+                </Card.Content>
               </Card>
             )}
 
             {/* Topics */}
             {repository.topics && repository.topics.length > 0 && (
-              <Card variant="flat">
-                <Text variant="body" weight="medium" className="mb-3">
-                  Topics
-                </Text>
-                <View className="flex-row flex-wrap gap-2">
-                  {repository.topics.map((topic) => (
-                    <Chip
-                      key={topic}
-                      label={topic}
-                      icon="pricetag"
-                      onPress={() => router.push(`/topic/${topic}`)}
-                    />
-                  ))}
-                </View>
+              <Card mode="contained">
+                <Card.Content>
+                  <Text variant="bodyMedium" style={{ fontWeight: '600', marginBottom: 12 }}>
+                    Topics
+                  </Text>
+                  <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                    {repository.topics.map((topic) => (
+                      <Chip
+                        key={topic}
+                        icon="tag"
+                        onPress={() => router.push(`/topic/${topic}`)}
+                        mode="outlined"
+                      >
+                        {topic}
+                      </Chip>
+                    ))}
+                  </View>
+                </Card.Content>
               </Card>
             )}
 
             {/* Actions */}
-            <View className="flex-row space-x-3">
-              <View className="flex-1">
-                <Button
-                  variant={isStarred ? 'outline' : 'primary'}
-                  onPress={handleStar}
-                >
-                  <View className="flex-row items-center">
-                    <Ionicons
-                      name={isStarred ? 'star' : 'star-outline'}
-                      size={20}
-                      color={isStarred ? '#fbbf24' : '#ffffff'}
-                    />
-                    <Text weight="semibold" className="ml-2">
-                      {isStarred ? 'Starred' : 'Star'}
-                    </Text>
-                  </View>
-                </Button>
-              </View>
+            <View style={{ flexDirection: 'row', gap: 12 }}>
+              <Button
+                mode={isStarred ? 'outlined' : 'contained'}
+                onPress={handleStar}
+                icon={isStarred ? 'star' : 'star-outline'}
+                style={{ flex: 1 }}
+              >
+                {isStarred ? 'Starred' : 'Star'}
+              </Button>
 
-              <Button variant="outline" onPress={handleOpenInBrowser}>
-                <Ionicons name="open-outline" size={20} color="#0284c7" />
+              <Button
+                mode="outlined"
+                onPress={handleOpenInBrowser}
+                icon="open-in-new"
+              >
+                Open
               </Button>
             </View>
 
             {/* README Section */}
-            <Card variant="elevated">
-              <View className="flex-row items-center mb-3">
-                <Ionicons name="document-text-outline" size={20} color="#0284c7" />
-                <Text variant="body" weight="semibold" className="ml-2">
-                  README
+            <Card mode="contained">
+              <Card.Content>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+                  <IconButton icon="text-box-outline" size={20} style={{ margin: 0, marginRight: 4 }} />
+                  <Text variant="titleSmall" style={{ fontWeight: '600' }}>
+                    README
+                  </Text>
+                </View>
+                <Text variant="bodyMedium" style={{ opacity: 0.7 }}>
+                  README content would be rendered here with markdown support.
                 </Text>
-              </View>
-              <Text color="gray" variant="body">
-                README content would be rendered here with markdown support.
-              </Text>
+              </Card.Content>
             </Card>
           </View>
         </ScrollView>
-      </View>
+      </Surface>
     </SafeAreaView>
   );
 }

@@ -26,6 +26,33 @@
         "NSCameraUsageDescription": "We need camera access to scan QR codes."
       }
     },
+    "android": {
+      "package": "com.reponexus.android",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#000000"
+      },
+      "permissions": [
+        "INTERNET",
+        "ACCESS_NETWORK_STATE",
+        "USE_BIOMETRIC",
+        "USE_FINGERPRINT"
+      ],
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "reponexus",
+              "host": "callback"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
+    },
     "plugins": [
       "expo-router",
       "expo-secure-store",
@@ -45,7 +72,10 @@
     "extra": {
       "eas": {
         "projectId": "repo-nexus-project"
-      }
+      },
+      "EXPO_PUBLIC_API_URL": "${EXPO_PUBLIC_API_URL}",
+      "EXPO_PUBLIC_WS_URL": "${EXPO_PUBLIC_WS_URL}",
+      "EXPO_PUBLIC_GITHUB_CLIENT_ID": "${EXPO_PUBLIC_GITHUB_CLIENT_ID}"
     }
   }
 }

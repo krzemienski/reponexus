@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import { View, Alert } from 'react-native';
+import { Button, Text, ActivityIndicator, Surface } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { useAuth } from '@/hooks/useAuth';
@@ -109,59 +110,69 @@ export default function LoginScreen() {
   };
 
   return (
-    <View className="flex-1 bg-dark-50 items-center justify-center px-6">
+    <Surface style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 }}>
       {/* App Branding */}
-      <View className="items-center mb-12">
-        <Text className="text-4xl font-bold text-white mb-2">Repo Nexus</Text>
-        <Text className="text-lg text-dark-500 text-center">
+      <View style={{ alignItems: 'center', marginBottom: 48 }}>
+        <Text variant="displayLarge" style={{ fontWeight: 'bold', marginBottom: 8 }}>
+          Repo Nexus
+        </Text>
+        <Text variant="titleMedium" style={{ textAlign: 'center', opacity: 0.7 }}>
           Discover and explore GitHub repositories
         </Text>
       </View>
 
       {/* Login Buttons */}
-      <View className="w-full max-w-sm">
+      <View style={{ width: '100%', maxWidth: 400 }}>
         {/* GitHub OAuth Login */}
-        <TouchableOpacity
+        <Button
+          mode="contained"
           onPress={handleLogin}
           disabled={isLoading}
-          className="bg-primary-600 px-8 py-4 rounded-lg w-full mb-4"
-          activeOpacity={0.8}
+          loading={isLoading}
+          icon="github"
+          style={{ marginBottom: 16, paddingVertical: 8 }}
+          contentStyle={{ paddingVertical: 4 }}
         >
-          {isLoading ? (
-            <ActivityIndicator color="#ffffff" />
-          ) : (
-            <Text className="text-white text-center font-semibold text-lg">
-              Sign in with GitHub
-            </Text>
-          )}
-        </TouchableOpacity>
+          Sign in with GitHub
+        </Button>
 
         {/* Biometric Login (if available) */}
         {showBiometric && !isLoading && (
-          <TouchableOpacity
+          <Button
+            mode="outlined"
             onPress={handleBiometricLogin}
-            className="bg-dark-200 px-8 py-4 rounded-lg w-full border border-dark-300"
-            activeOpacity={0.8}
+            icon="fingerprint"
+            style={{ paddingVertical: 8 }}
+            contentStyle={{ paddingVertical: 4 }}
           >
-            <Text className="text-white text-center font-semibold text-lg">
-              Use Biometric
-            </Text>
-          </TouchableOpacity>
+            Use Biometric
+          </Button>
         )}
       </View>
 
       {/* Terms of Service */}
-      <Text className="text-dark-500 text-sm mt-8 text-center">
+      <Text variant="bodySmall" style={{ marginTop: 32, textAlign: 'center', opacity: 0.6 }}>
         By signing in, you agree to our{' '}
-        <Text className="text-primary-500">Terms of Service</Text>
+        <Text variant="bodySmall" style={{ color: '#0ea5e9' }}>Terms of Service</Text>
       </Text>
 
       {/* Error Message */}
       {error && !isLoading && (
-        <View className="mt-4 px-4 py-3 bg-red-900/20 border border-red-700 rounded-lg max-w-sm w-full">
-          <Text className="text-red-400 text-center text-sm">{error}</Text>
-        </View>
+        <Surface
+          style={{
+            marginTop: 16,
+            padding: 16,
+            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+            borderRadius: 8,
+            maxWidth: 400,
+            width: '100%',
+          }}
+        >
+          <Text variant="bodyMedium" style={{ color: '#f87171', textAlign: 'center' }}>
+            {error}
+          </Text>
+        </Surface>
       )}
-    </View>
+    </Surface>
   );
 }

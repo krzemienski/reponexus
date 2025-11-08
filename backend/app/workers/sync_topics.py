@@ -13,7 +13,7 @@ from app.workers.celery import celery_app
 from app.services.github_service import get_github_service
 from app.services.github_graphql import get_github_graphql_client
 from app.services.cache_service import get_cache_service
-from app.core.db import async_session_maker
+from app.core.db import AsyncSessionLocal
 from app.models.topic import Topic
 from app.models.repository import Repository
 
@@ -57,7 +57,7 @@ async def _discover_topics_async() -> Dict[str, Any]:
             }
 
         # Store topics in database
-        async with async_session_maker() as session:
+        async with AsyncSessionLocal() as session:
             synced_count = 0
 
             for topic_name in topics:
@@ -137,7 +137,7 @@ async def _sync_topic_async(topic_name: str, fetch_repos: bool) -> Dict[str, Any
             repos = [edge["node"] for edge in data["search"]["edges"]]
 
         # Update topic in database
-        async with async_session_maker() as session:
+        async with AsyncSessionLocal() as session:
             stmt = select(Topic).where(Topic.name == topic_name)
             result = await session.execute(stmt)
             topic = result.scalar_one_or_none()
@@ -231,7 +231,7 @@ async def _sync_all_topics_async() -> Dict[str, Any]:
     """Async implementation of sync all topics"""
     try:
         # Get all topics from database
-        async with async_session_maker() as session:
+        async with AsyncSessionLocal() as session:
             stmt = select(Topic)
             result = await session.execute(stmt)
             topics = result.scalars().all()
@@ -282,7 +282,7 @@ def update_topic_stats(self):
 async def _update_topic_stats_async() -> Dict[str, Any]:
     """Async implementation of topic stats update"""
     try:
-        async with async_session_maker() as session:
+        async with AsyncSessionLocal() as session:
             # Get all unique topics from repositories
             stmt = select(Repository.topics).where(
                 Repository.topics.isnot(None),
@@ -365,7 +365,7 @@ def sync_trending_topics(self, limit: int = 20):
 async def _sync_trending_topics_async(limit: int) -> Dict[str, Any]:
     """Async implementation of trending topics sync"""
     try:
-        async with async_session_maker() as session:
+        async with AsyncSessionLocal() as session:
             # Get top topics by repository count
             stmt = select(Topic).order_by(
                 Topic.repository_count.desc()
@@ -419,7 +419,7 @@ def cleanup_unused_topics(self, min_repos: int = 1):
 async def _cleanup_unused_topics_async(min_repos: int) -> Dict[str, Any]:
     """Async implementation of unused topics cleanup"""
     try:
-        async with async_session_maker() as session:
+        async with AsyncSessionLocal() as session:
             # Find topics with low repository count
             stmt = select(Topic).where(
                 Topic.repository_count < min_repos

@@ -8,8 +8,7 @@
       "developmentClient": true,
       "distribution": "internal",
       "ios": {
-        "simulator": true,
-        "bundleIdentifier": "com.reponexus.ios.dev"
+        "simulator": true
       },
       "cache": {
         "disabled": false
@@ -18,8 +17,7 @@
     "preview": {
       "distribution": "internal",
       "ios": {
-        "simulator": false,
-        "bundleIdentifier": "com.reponexus.ios.preview"
+        "simulator": false
       },
       "cache": {
         "disabled": false
@@ -28,7 +26,6 @@
     "production": {
       "distribution": "store",
       "ios": {
-        "bundleIdentifier": "com.reponexus.ios",
         "buildConfiguration": "Release"
       },
       "cache": {

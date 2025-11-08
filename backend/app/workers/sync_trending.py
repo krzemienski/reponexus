@@ -11,7 +11,7 @@ from sqlalchemy import select, update
 from app.workers.celery import celery_app
 from app.services.github_service import get_github_service
 from app.services.cache_service import get_cache_service
-from app.core.db import async_session_maker
+from app.core.db import AsyncSessionLocal
 from app.models.repository import Repository
 
 logger = logging.getLogger(__name__)
@@ -71,7 +71,7 @@ async def _sync_trending_async(period: str, language: Optional[str]) -> Dict[str
                 trending_score = max_score - idx
 
                 # Update repository in database
-                async with async_session_maker() as session:
+                async with AsyncSessionLocal() as session:
                     # Find repository by name_with_owner
                     stmt = select(Repository).where(
                         Repository.name_with_owner == f"{owner}/{name}"
@@ -189,7 +189,7 @@ async def _calculate_trending_scores_async() -> Dict[str, Any]:
         # Calculate scores based on recent activity
         # Score = (stars * 0.4) + (forks * 0.3) + (recency_factor * 0.3)
 
-        async with async_session_maker() as session:
+        async with AsyncSessionLocal() as session:
             # Get repositories updated in last 30 days
             cutoff_date = datetime.utcnow() - timedelta(days=30)
 
@@ -263,7 +263,7 @@ async def _update_trending_cache_async() -> Dict[str, Any]:
 
     try:
         # Get top trending repositories from database
-        async with async_session_maker() as session:
+        async with AsyncSessionLocal() as session:
             # Overall trending (all languages)
             stmt = select(Repository).order_by(
                 Repository.trending_score.desc()
@@ -352,7 +352,7 @@ async def _cleanup_old_trending_scores_async(days: int) -> Dict[str, Any]:
     try:
         cutoff_date = datetime.utcnow() - timedelta(days=days)
 
-        async with async_session_maker() as session:
+        async with AsyncSessionLocal() as session:
             # Reset trending scores for old repositories
             stmt = update(Repository).where(
                 Repository.updated_at < cutoff_date,

@@ -1,5 +1,13 @@
 # Repo Nexus
 
+> Modern iOS app built with React Native + Expo — enhanced GitHub exploration with OAuth, trending, topics, and offline support.
+
+Live site: [withagents.dev/posts/post-11-spec-driven-development](https://withagents.dev/posts/post-11-spec-driven-development)
+Field journal entry: [withagents.dev/posts/post-11-spec-driven-development](https://withagents.dev/posts/post-11-spec-driven-development)
+
+---
+
+
 A modern iOS application built with React Native and Expo that provides an enhanced GitHub exploration experience.
 
 ## Features
